@@ -1,3 +1,4 @@
+/*
 import { join } from "node:path";
 import { Low, JSONFile } from "lowdb";
 import { log } from "./log.js";
@@ -11,3 +12,5 @@ await database.write();
 log.info("Started database");
 
 export { database };
+*/
+throw new Error("database is currently unused");
