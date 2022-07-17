@@ -13,20 +13,22 @@
     "refresh-git-pkg": "npm uninstall @a06000208/handler @a06000208/discord-framework && npm install github:06000208/handler github:06000208/discord-framework"
   },
   "author": "06000208",
+  "homepage": "https://github.com/06000208/clear",
   "main": "index.js",
   "module": "index.js",
   "type": "module",
   "dependencies": {
     "@a06000208/discord-framework": "github:06000208/discord-framework",
     "@a06000208/handler": "github:06000208/handler",
-    "@discordjs/builders": "^0.15.0",
+    "@discordjs/builders": "^0.16.0",
     "@discordjs/rest": "^0.5.0",
     "@sapphire/ratelimits": "^2.4.4",
     "@sapphire/snowflake": "^3.2.2",
+    "discord-api-types": "^0.36.2",
     "discord.js": "^13.8.1",
     "dotenv": "^16.0.1",
     "lowdb": "^3.0.0",
-    "luxon": "^2.4.0",
+    "luxon": "^3.0.1",
     "pino": "^8.1.0",
     "pino-pretty": "^8.1.0"
   }
