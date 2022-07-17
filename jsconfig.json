@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "strictNullChecks": true,
+        "moduleResolution": "node",
+        "module": "ES2020",
+    },
+    "include": [
+        "index.js",
+        "modules/**/*.js"
+    ]
+}
