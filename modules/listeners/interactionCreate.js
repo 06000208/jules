@@ -13,14 +13,18 @@ export default new ListenerBlock({ event: "interactionCreate" }, async function(
     // chain :P
     if (interaction.commandName === "ping") {
         // ping command
-        const reply = await interaction.reply("ping...");
+        const reply = await interaction.reply({
+            content: "ping...",
+            fetchReply: true,
+        });
+        console.log(reply);
         return await interaction.editReply(`pong!\nresponding took roughly \`${reply.createdTimestamp - interaction.createdTimestamp}ms\`\naverage heartbeat is around \`${Math.round(this.ws.ping)}ms\``);
     } else if (interaction.commandName === "about") {
         // info command
         return await interaction.reply({
             content: [
-                `running [clear](${packageData.homepage}) ${version}`,
-                `[invite link](https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=431644601408&scope=bot%20applications.commands)`,
+                `running [clear](<${packageData.homepage}>) ${version}`,
+                `[invite link](<https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=431644601408&scope=bot%20applications.commands<)`,
                 `for further info, contact <@${owners.join(">, <@")}>`,
             ].join("\n"),
             ephemeral: true,
