@@ -4,6 +4,7 @@
   "description": "purpose built discord bot to clear messages",
   "scripts": {
     "start": "node index.js",
+    "deploy-commands": "node deploy.js",
     "clear-logs": "del logs\\*.log",
     "test": "echo \"Error: no tests\" && exit 1",
     "lint": "eslint . --ext .js,.mjs,.cjs",
