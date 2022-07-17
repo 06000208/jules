@@ -23,7 +23,7 @@ discord.events.load(interactionCreate);
 
 // bot owners
 if (!env.discord_owner_ids) throw new Error("no discord user ids to treat as bot owners");
-export const owners = env.discord_guild_ids.split(",").map((str) => str.trim());
+export const owners = env.discord_owner_ids.split(",").map((str) => str.trim());
 
 // login
 try {
