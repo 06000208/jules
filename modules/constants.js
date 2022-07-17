@@ -52,6 +52,7 @@ const defaultPresence = {
  * Default data used for the database
  */
 const defaultData = {
+    deployedCommands: false,
     analytics: [],
     emojis: [],
 };
