@@ -7,7 +7,7 @@ import { log } from "./log.js";
 import { Permissions } from "discord.js";
 
 const commands = [
-    new SlashCommandBuilder().setName("info").setDescription("basic operating info"),
+    new SlashCommandBuilder().setName("about").setDescription("basic info about the bot"),
     new SlashCommandBuilder().setName("ping").setDescription("checks latency"),
     new SlashCommandBuilder().setName("exit").setDescription("exits process peacefully"),
 ].map(command => command.toJSON());
