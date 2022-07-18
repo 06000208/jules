@@ -8,12 +8,21 @@ import { log } from "./log.js";
 
 // instantiate
 const discord = new Discord({
+    /**
+     * @type {import("discord.js").ClientOptions}
+     */
     clientOptions: {
         presence: defaultPresence,
         intents: [
             Intents.FLAGS.GUILDS,
             Intents.FLAGS.GUILD_MESSAGES,
         ],
+        allowedMentions: {
+            parse: [],
+            users: [],
+            roles: [],
+            repliedUser: false,
+        },
     },
 });
 
