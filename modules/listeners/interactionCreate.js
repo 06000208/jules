@@ -4,6 +4,7 @@ import { owners, discord } from "../discord.js";
 import { log } from "../log.js";
 import { clear } from "../components/clear.js";
 import { packageData, version } from "../constants.js";
+import { MessageEmbed } from "discord.js";
 
 export default new ListenerBlock({ event: "interactionCreate" }, async function(interaction) {
     if (!interaction.isCommand()) return;
@@ -17,30 +18,33 @@ export default new ListenerBlock({ event: "interactionCreate" }, async function(
             content: "ping...",
             fetchReply: true,
         });
-        console.log(reply);
         return await interaction.editReply(`pong!\nresponding took roughly \`${reply.createdTimestamp - interaction.createdTimestamp}ms\`\naverage heartbeat is around \`${Math.round(this.ws.ping)}ms\``);
     } else if (interaction.commandName === "about" || interaction.commandName === "help") {
         // info command
+        const embed = new MessageEmbed();
+        embed.setTitle(this.user.username);
+        embed.setURL(`https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=431644601408&scope=bot%20applications.commands`);
+        embed.setDescription(`running [clear](<${packageData.homepage}>) v${version}, for further info contact <@${owners.join(">, <@")}>`);
+        embed.addField("Commands", "`/ping`, `/about`, `/exit`, `/clear`", true);
+        embed.addField("Note", "the `/exit` and `/clear` commands are restricted, and the latter requires you to have Manage Messages to appear as an option");
         return await interaction.reply({
-            content: [
-                `running [clear](<${packageData.homepage}>) v${version}, [invite link](<https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=431644601408&scope=bot%20applications.commands>)`,
-                `commands: \`/ping\`, \`/about\`, \`/exit\`, \`/clear\``,
-                `note that the \`/clear\` command requires you to have Manage Messages to appear as an option`,
-                `for further info, contact <@${owners.join(">, <@")}>`,
-            ].join("\n"),
+            embeds: [ embed ],
             ephemeral: true,
         });
     } else if (!owners.includes(interaction.user.id)) {
         // this is checked prior to checking if the command is one of the
         // restricted commands, effectively preventing them from being used
-        log.debug(`${interaction.user.name} (${interaction.user.id}) tried to use /${interaction.commandName}`);
+        log.debug(`${interaction.user.username} (${interaction.user.id}) tried to use /${interaction.commandName}`);
         return await interaction.reply({
-            content: "you lack the authorization to use this command",
+            content: "you lack authorization to use this command",
             ephemeral: true,
         });
     } else if (interaction.commandName === "exit") {
         // exit command
-        await interaction.reply("exiting...");
+        await interaction.reply({
+            content: "exiting...",
+            ephemeral: true,
+        });
         discord.destroy();
         process.exit(0);
     } else if (interaction.commandName === "clear") {
