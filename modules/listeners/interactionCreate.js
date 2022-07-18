@@ -19,12 +19,13 @@ export default new ListenerBlock({ event: "interactionCreate" }, async function(
         });
         console.log(reply);
         return await interaction.editReply(`pong!\nresponding took roughly \`${reply.createdTimestamp - interaction.createdTimestamp}ms\`\naverage heartbeat is around \`${Math.round(this.ws.ping)}ms\``);
-    } else if (interaction.commandName === "about") {
+    } else if (interaction.commandName === "about" || interaction.commandName === "help") {
         // info command
         return await interaction.reply({
             content: [
-                `running [clear](<${packageData.homepage}>) ${version}`,
-                `[invite link](<https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=431644601408&scope=bot%20applications.commands<)`,
+                `running [clear](<${packageData.homepage}>) v${version}, [invite link](<https://discord.com/api/oauth2/authorize?client_id=${this.user.id}&permissions=431644601408&scope=bot%20applications.commands>)`,
+                `commands: \`/ping\`, \`/about\`, \`/exit\`, \`/clear\``,
+                `note that the \`/clear\` command requires you to have Manage Messages to appear as an option`,
                 `for further info, contact <@${owners.join(">, <@")}>`,
             ].join("\n"),
             ephemeral: true,
@@ -33,11 +34,10 @@ export default new ListenerBlock({ event: "interactionCreate" }, async function(
         // this is checked prior to checking if the command is one of the
         // restricted commands, effectively preventing them from being used
         log.debug(`${interaction.user.name} (${interaction.user.id}) tried to use /${interaction.commandName}`);
-        await interaction.reply({
+        return await interaction.reply({
             content: "you lack the authorization to use this command",
             ephemeral: true,
         });
-        return;
     } else if (interaction.commandName === "exit") {
         // exit command
         await interaction.reply("exiting...");
@@ -48,3 +48,4 @@ export default new ListenerBlock({ event: "interactionCreate" }, async function(
         return await clear(interaction);
     }
 });
+
