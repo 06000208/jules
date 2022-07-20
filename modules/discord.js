@@ -27,12 +27,13 @@ const discord = new Discord({
 });
 
 // listeners
-for (const block of logging) { discord.events.load(block); }
+for (const listenerBlock of logging) { discord.events.load(listenerBlock); }
 discord.events.load(interactionCreate);
 
 // bot owners
 if (!env.discord_owner_ids) throw new Error("no discord user ids to treat as bot owners");
 export const owners = env.discord_owner_ids.split(",").map((str) => str.trim());
+log.info(`Authorized discord users: ${owners.join(", ")}`);
 
 // login
 try {
