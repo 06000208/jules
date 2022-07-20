@@ -4,9 +4,9 @@ import { owners, discord } from "../discord.js";
 import { log } from "../log.js";
 import { clear } from "../components/clear.js";
 import { packageData, version } from "../constants.js";
-import { MessageEmbed } from "discord.js";
+import { Interaction, MessageEmbed } from "discord.js";
 
-export default new ListenerBlock({ event: "interactionCreate" }, async function(interaction) {
+export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Interaction} interaction */ async function(interaction) {
     if (!interaction.isCommand()) return;
     if (!interaction.isRepliable()) return log.debug(`couldn't reply to a ${interaction.commandName} interaction`);
     // the 06000208/commands and 06000208/discord-framework packages are too
@@ -34,13 +34,14 @@ export default new ListenerBlock({ event: "interactionCreate" }, async function(
     } else if (!owners.includes(interaction.user.id)) {
         // this is checked prior to checking if the command is one of the
         // restricted commands, effectively preventing them from being used
-        log.debug(`${interaction.user.username} (${interaction.user.id}) tried to use /${interaction.commandName}`);
+        log.debug(`${interaction.user.tag} (${interaction.user.id}) tried to use /${interaction.commandName} but isn't authorized`);
         return await interaction.reply({
             content: "you lack authorization to use this command",
             ephemeral: true,
         });
     } else if (interaction.commandName === "exit") {
         // exit command
+        log.info(`${interaction.user.tag} (${interaction.user.id}) used /exit, destroying client & exiting peacefully`)
         await interaction.reply({
             content: "exiting...",
             ephemeral: true,
@@ -52,4 +53,3 @@ export default new ListenerBlock({ event: "interactionCreate" }, async function(
         return await clear(interaction);
     }
 });
-
