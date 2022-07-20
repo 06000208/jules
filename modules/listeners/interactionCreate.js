@@ -41,7 +41,7 @@ export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Int
         });
     } else if (interaction.commandName === "exit") {
         // exit command
-        log.info(`${interaction.user.tag} (${interaction.user.id}) used /exit, destroying client & exiting peacefully`)
+        log.info(`${interaction.user.tag} (${interaction.user.id}) used /exit, destroying client & exiting peacefully`);
         await interaction.reply({
             content: "exiting...",
             ephemeral: true,
