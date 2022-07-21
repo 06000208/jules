@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
  * Used in various places, must be filename friendly on both windows and linux
  * @type {string}
  */
-const name = "clear";
+const name = "jules";
 
 /**
  * Root directory
@@ -48,14 +48,6 @@ const defaultPresence = {
     }],
 };
 
-/**
- * Default data used for the database
- */
-const defaultData = {
-    analytics: {},
-    emojis: [],
-};
-
 export {
     name,
     directory,
@@ -63,5 +55,4 @@ export {
     version,
     environmentVariables,
     defaultPresence,
-    defaultData,
 };

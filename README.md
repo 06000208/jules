@@ -1,7 +1,9 @@
-# clear
+# jules
 
-purpose built discord bot to clear messages
+purpose built discord bot for administrative utilities, such as:
 
+- deleting all messages from a user in a channel
+- archival features
 
 ## install
 
@@ -36,4 +38,4 @@ DISCORD_OWNER_IDS=""
 
 note that this uses [06000208/discord-framework](https://github.com/06000208/discord-framework) and [06000208/handler](https://github.com/06000208/discord-framework) as dependencies
 
-all npm dependencies are listed in package.json
+all dependencies are listed in package.json
