@@ -6,6 +6,8 @@ export const commands = [
     new SlashCommandBuilder().setName("help").setDescription("alias for /about"),
     new SlashCommandBuilder().setName("ping").setDescription("checks latency"),
     new SlashCommandBuilder().setName("exit").setDescription("exits process peacefully"),
+    new SlashCommandBuilder().setName("quit").setDescription("alias for /exit"),
+    new SlashCommandBuilder().setName("guilds").setDescription("list of guilds"),
 ].map(command => command.toJSON());
 
 export const guildCommands = [
