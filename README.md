@@ -2,9 +2,12 @@
 
 purpose built discord bot to clear messages
 
+note that this uses [06000208/discord-framework](https://github.com/06000208/discord-framework) and [06000208/handler](https://github.com/06000208/discord-framework) as dependencies
+
 ## install
 
-- install [nodejs](https://nodejs.org/) (minimum v16.6) and npm ([guide](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm))
+- install [nodejs](https://nodejs.org/) (minimum v16.6) and npm
+  - as per the [install guide](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm#using-a-node-installer-to-install-nodejs-and-npm), npm comes with the [nodejs installers](https://nodejs.org/en/download/)
 - [download the bot](https://github.com/06000208/clear/archive/refs/heads/main.zip) (direct download)
 - run `npm install` in the same folder as `package.json`
 - setup your .env file or environment variables as described below
