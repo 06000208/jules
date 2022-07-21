@@ -6,6 +6,6 @@
     },
     "include": [
         "index.js",
-        "modules/**/*.js"
-    ]
+        "modules/**/*.js",
+    ],
 }
