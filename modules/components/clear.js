@@ -15,12 +15,13 @@ import { log } from "../log.js";
  * @property {number} valid Number of valid messages to be deleted
  * @property {number} deletions Number of messages deleted
  * @property {number} skipped Number of messages skipped
- * @property {?DateTime} start
- * @property {?DateTime} end
+ * @property {?DateTime} start A luxon DateTime, will be automatically serialized to a string by database.write()
+ * @property {?DateTime} end A luxon DateTime, will be automatically serialized to a string by database.write()
  * @property {?string} duration
  */
 
 /**
+ * Default data written to the database
  * @type {ClearingAnalytics}
  */
 const defaultAnalyticalData = {
@@ -65,7 +66,7 @@ const recursiveChannelClear = async function(id, channel, user, before) {
     database.data.analytics[id].deletions += deletions;
     // don't need to do this, can rely on messages.lastKey() being the oldest id
     // const sorted = messages.sort((messageA, messageB) => messageA.createdTimestamp - messageB.createdTimestamp);
-    log.debug(`[clear ${id}] [${database.data.analytics[id].runs} layers deep] out of ${messages.size} messages, ${filtered.size} from ${user.tag} (${user.id}) were found and ${deletions} ${deletions == 1 ? "was" : "were"} deleted for a total of ${database.data.analytics[id].deletions}/${database.data.analytics[id].total}`);
+    log.debug(`[clear ${id}] [${database.data.analytics[id].runs} layers deep] out of ${messages.size} messages ${filtered.size} ${filtered.size == 1 ? "was" : "were"} from ${user.tag} (${user.id}) and ${deletions} ${deletions == 1 ? "was" : "were"} deleted for a total of ${database.data.analytics[id].deletions} out of ${database.data.analytics[id].total}`);
     if (messages.size === 50) {
         return await recursiveChannelClear(id, channel, user, messages.lastKey());
     } else {
@@ -75,14 +76,16 @@ const recursiveChannelClear = async function(id, channel, user, before) {
 };
 
 /**
- * @param {CommandInteraction} command
+ * @param {CommandInteraction} command /clear interaction
  */
 export const clear = async function(command) {
     /**
+     * Required channel parameter
      * @type {BaseGuildTextChannel}
      */
     const channel = command.options.getChannel("channel");
     /**
+     * Required user parameter
      * @type {User}
      */
     const user = command.options.getUser("user");
@@ -106,30 +109,33 @@ export const clear = async function(command) {
     if (!channel.permissionsFor(discord.client.user.id, true).has(Permissions.FLAGS.MANAGE_MESSAGES)) {
         log.debug(`${command.user.tag} (${command.user.id}) tried to use /clear but the bot is missing Manage Messages in #${channel.name} (${channel.id})`);
         return await command.reply({
-            content: `${this.user} is missing Manage Messages in ${channel}, can't proceed`,
+            content: `${discord.client.user} is missing Manage Messages in ${channel}, can't proceed`,
             ephemeral: true,
         });
     }
-    const row = new MessageActionRow().addComponents(
-        new MessageButton()
-            .setCustomId("yes")
-            .setLabel("Yes")
-            .setStyle("DANGER"),
-        new MessageButton()
-            .setCustomId("no")
-            .setLabel("No")
-            .setStyle("SECONDARY"),
-    );
     /**
+     * Message sent as an inital reply to /clear
      * @type {Message}
      */
     const confirmationPrompt = await command.reply({
         content: `are you sure you wish to delete all messages from ${user} (${user.tag}) in ${channel}?`,
-        components: [row],
+        components: [
+            new MessageActionRow().addComponents(
+                new MessageButton()
+                    .setCustomId("yes")
+                    .setLabel("Yes")
+                    .setStyle("DANGER"),
+                new MessageButton()
+                    .setCustomId("no")
+                    .setLabel("No")
+                    .setStyle("SECONDARY"),
+            ),
+        ],
         ephemeral: true,
         fetchReply: true,
     });
     /**
+     * Button interaction used for confirming parameters or cancelling
      * @type {?ButtonInteraction}
      */
     let button = null;
@@ -147,7 +153,7 @@ export const clear = async function(command) {
     }
     if (!button) {
         return await command.editReply({
-            content: `didn't confirm parameters (${user} in ${channel}) within 1 minute, cancelled`,
+            content: `didn't confirm parameters (${user.tag} in ${channel}) within 1 minute, cancelled`,
             components: [],
         });
     }
@@ -159,8 +165,14 @@ export const clear = async function(command) {
         });
     }
     await command.editReply({
-        content: `confirmed, deleting all messages from ${user} (${user.tag}) in ${channel}`,
+        content: `confirmed, deleting all messages from ${user.tag} in ${channel}`,
         components: [],
+        allowedMentions: {
+            parse: [],
+            users: [],
+            roles: [],
+            repliedUser: false,
+        },
     });
     const id = DiscordSnowflake.generate().toString();
     log.debug(`${command.user.tag} (${command.user.id}) succesfully used /clear, deleting all messages from ${user.tag} (${user.id}) in #${channel.name} (${channel.id}), analytics id: ${id}`);
@@ -173,9 +185,9 @@ export const clear = async function(command) {
     const results = await recursiveChannelClear(id, channel, user);
     database.data.analytics[id].duration = Interval.fromDateTimes(results.start, results.end).toDuration().toHuman();
     await database.write();
-    log.debug(`[clear ${id}] deleted ${results.deletions} out of ${results.total} ${results.total == 1 ? "message" : "messages"} in ${database.data.analytics[id].duration}`);
+    log.debug(`[clear ${id}] processed ${results.total} ${results.total == 1 ? "message" : "messages"} in ${database.data.analytics[id].duration}, found ${results.valid} to delete from ${user.tag} and deleted ${results.deletions}`);
     return await command.followUp({
-        content: `done, deleted ${results.deletions} out of ${results.total} ${results.total == 1 ? "message" : "messages"} in ${database.data.analytics[id].duration}`,
+        content: `done, processed ${results.total} ${results.total == 1 ? "message" : "messages"} in ${database.data.analytics[id].duration}, found ${results.valid} to delete from ${user.tag} and deleted ${results.deletions}`,
         ephemeral: true,
     });
 };
