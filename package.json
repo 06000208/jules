@@ -1,6 +1,6 @@
 {
   "name": "clear",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "purpose built discord bot to clear messages",
   "scripts": {
     "start": "node index.js",
