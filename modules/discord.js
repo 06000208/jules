@@ -1,12 +1,12 @@
 import { env, exit } from "node:process";
 import { Discord } from "@a06000208/discord-framework";
 import { Intents } from "discord.js";
+import { log } from "./log.js";
 import { defaultPresence } from "./constants.js";
 import logging from "./listeners/logging.js";
 import interactionCreate from "./listeners/interactionCreate.js";
-import { log } from "./log.js";
 
-// instantiate
+// instantiate an instance of Discord
 const discord = new Discord({
     /**
      * @type {import("discord.js").ClientOptions}
