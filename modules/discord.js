@@ -6,7 +6,7 @@ import { defaultPresence } from "./constants.js";
 import logging from "./listeners/logging.js";
 import interactionCreate from "./listeners/interactionCreate.js";
 
-// instantiate an instance of Discord
+// instantiate Discord instance, this includes the discord.js Client
 const discord = new Discord({
     /**
      * @type {import("discord.js").ClientOptions}
