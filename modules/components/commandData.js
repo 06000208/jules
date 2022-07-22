@@ -19,7 +19,6 @@ export const commands = [
         )
         .addSubcommand(subcommand => subcommand.setName("save").setDescription("estimate saving")
             .addIntegerOption(option => option.setName("total").setDescription("total messages in a channel").setRequired(true))
-            .addIntegerOption(option => option.setName("filtered").setDescription("total messages from a user").setRequired(false))
             .addBooleanOption(option => option.setName("ephemeral").setDescription("default true").setRequired(false)),
         ),
     new SlashCommandBuilder().setName("save")

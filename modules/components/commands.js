@@ -74,13 +74,6 @@ export const guilds = async function(command) {
 export const estimate = async function(command) {
     const type = command.options.getSubcommand();
     const totalMessages = command.options.getInteger("total");
-    const validMessages = command.options.getInteger("filtered") || 0;
-    if (validMessages > totalMessages) {
-        return command.reply({
-            content: "valid messages can't be larger than the total messages",
-            ephemeral: true,
-        });
-    }
     const ephemeral = command.options.getBoolean("ephemeral");
     const start = DateTime.fromMillis(0);
     const timeToFetch = start.plus({ seconds: Math.round(totalMessages / 100) });
@@ -89,6 +82,13 @@ export const estimate = async function(command) {
         const savingInterval = Interval.fromDateTimes(start, timeToFetch);
         msg = `saving would take at least ${humanizeDuration(savingInterval.length("milliseconds"))}`;
     } else if (type === "clear") {
+        const validMessages = command.options.getInteger("filtered") || 0;
+        if (validMessages > totalMessages) {
+            return command.reply({
+                content: "valid messages can't be larger than the total messages",
+                ephemeral: true,
+            });
+        }
         const timeToDelete = timeToFetch.plus({ seconds: validMessages });
         const deletingInterval = Interval.fromDateTimes(start, timeToDelete);
         msg = `clearing would take at least ${humanizeDuration(deletingInterval.length("milliseconds"))}`;
