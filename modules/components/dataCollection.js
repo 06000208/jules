@@ -27,6 +27,7 @@ export const saveAttachments = env?.jules_save_attachments === "true";
  * @param {Message} message
  */
 export const collectData = async function(message) {
+    // this is unfinished, and will currently do nothing
     if (saveEmojis) {
         //
     }
