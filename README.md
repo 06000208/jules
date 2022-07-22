@@ -34,7 +34,7 @@ DISCORD_CLIENT_ID=""
 DISCORD_OWNER_IDS=""
 
 # booleans that control what data is saved when using either /save or /clear with optional saving enabled
-# must be explictly set to true as shown to be considered enabled
+# must be explictly set to true as shown to be considered enabled, omitting them is fine
 JULES_SAVE_EMOJIS=true
 JULES_SAVE_LINKS=false
 JULES_SAVE_ATTACHMENTS=false
