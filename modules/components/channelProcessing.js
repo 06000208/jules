@@ -6,6 +6,7 @@ import { analytics, emojis } from "../databases.js";
 import { collectData, saveData } from "./dataCollection.js";
 import { log } from "../log.js";
 import { hook } from "../webhook.js";
+import humanizeDuration from "humanize-duration";
 
 /**
  * @typedef {Object} Analytics
@@ -62,11 +63,11 @@ const processAllChannelMessages = async function(authorizer, channel, callback, 
     let iterating = true;
     while (iterating) {
         analytics.data[id].loops++;
-        // not scientific, simply avoids hitting discord with more than 1r/1s
+        // not scientific, simply avoids hitting discord with more than 1r/0.5s
         // discord.js has its own internal rate limits and action queues based
         // on the cooldowns it gets in the responses from discord, so it could
         // be safe to lower it, but id prefer not
-        if (before) await wait(1000);
+        if (before) await wait(500);
         const messages = await channel.messages.fetch(before ? { "limit": 100, "before": before } : { "limit": 100 });
         analytics.data[id].processed += messages.size;
         const validMessages = user ? messages.filter((message) => message.author.id === user.id) : messages;
@@ -80,13 +81,7 @@ const processAllChannelMessages = async function(authorizer, channel, callback, 
     }
     analytics.data[id].end = DateTime.now();
     const interval = Interval.fromDateTimes(analytics.data[id].start, analytics.data[id].end);
-    const units = [];
-    if (!interval.hasSame("days")) units.push("days");
-    if (!interval.hasSame("hours")) units.push("hours");
-    if (!interval.hasSame("minutes")) units.push("minutes");
-    if (!interval.hasSame("seconds")) units.push("seconds");
-    if (!interval.hasSame("milliseconds")) units.push("milliseconds");
-    analytics.data[id].duration = interval.toDuration(units).toHuman();
+    analytics.data[id].duration = humanizeDuration(interval.length("milliseconds"));
     log.debug(`[${id}] finished iterating #${channel.name} (${channel.id}), processed ${analytics.data[id].processed} ${analytics.data[id].processed == 1 ? "message" : "messages"} and attempted to handle ${analytics.data[id].valid} in ${analytics.data[id].duration}`);
     await analytics.write();
     return analytics.data[id];
@@ -206,11 +201,11 @@ const save = async function(command, channel, user) {
 const deleteMessage = async function(message) {
     if (message.deletable) {
         await message.delete();
-        // not scientific, simply avoids hitting discord with more than 1r/1s
+        // not scientific, simply avoids hitting discord with more than 1r/0.5s
         // discord.js has its own internal rate limits and action queues based
         // on the cooldowns it gets in the responses from discord, so it could
         // be safe to lower it, but id prefer not
-        await wait(1000);
+        await wait(500);
     }
 };
 
