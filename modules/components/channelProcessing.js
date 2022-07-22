@@ -264,7 +264,6 @@ const clear = async function(command, channel, user) {
         username: command.client.user.username,
         avatarURL: command.client.user.avatarURL({ format: "png" }),
     });
-
 };
 
 /**
