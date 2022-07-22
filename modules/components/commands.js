@@ -25,7 +25,7 @@ export const about = async function(command) {
     embed.setURL(`https://discord.com/api/oauth2/authorize?client_id=${command.client.user.id}&permissions=431644601408&scope=bot%20applications.commands`);
     embed.setDescription(`running [${name}](<${packageData.homepage}>) source code v${version}, for further info ${owners.length == 1 ? "contact" : "contact someone on this list:"} <@${owners.join(">, <@")}>`);
     embed.addField("Commands", "`/ping`, `/about`, `/exit`, `/guilds`, `/save`, `/clear`", true);
-    embed.addField("Note", "the `/exit`, /guilds, `/save`, and `/clear` commands are restricted, and the latter two requires you have Manage Messages to appear as an option");
+    embed.addField("Note", "the `/exit`, `/guilds`, `/save`, and `/clear` commands are restricted, and the latter two requires you have Manage Messages to appear as an option");
     return await command.reply({
         embeds: [ embed ],
         ephemeral: true,
@@ -52,9 +52,14 @@ export const exit = async function(command) {
  * @param {CommandInteraction} command
  */
 export const guilds = async function(command) {
-    log.debug(`${command.user.tag} (${command.user.id}) used /guilds`);
+    let list = command.client.guilds.cache.map((guild) => `${guild.name} (${guild.id})`).join("\n") || "no guilds?";
+    log.debug({ guilds: list }, `${command.user.tag} (${command.user.id}) used /guilds`);
+    if (list.length > 1900) {
+        list = list.substring(0, list.indexOf("\n", 1600));
+        list += `\nlist had to be truncated, see console or log file for the full list`;
+    }
     await command.reply({
-        content: command.client.guilds.cache.map((guild) => `${guild.name} (${guild.id})`).join("\n"),
+        content: list,
         ephemeral: true,
     });
 };
