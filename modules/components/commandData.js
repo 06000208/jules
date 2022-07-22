@@ -9,7 +9,7 @@ export const commands = [
     new SlashCommandBuilder().setName("exit").setDescription("alias for /quit"),
     new SlashCommandBuilder().setName("guilds").setDescription("list of guilds"),
     new SlashCommandBuilder().setName("save")
-        .setDescription("saves data from a channel")
+        .setDescription("saves emojis from a channel")
         .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES)
         .setDMPermission(false)
         .addChannelOption(option => option.setName("channel").setDescription("select a channel").setRequired(true))
@@ -20,7 +20,7 @@ export const commands = [
         .setDMPermission(false)
         .addChannelOption(option => option.setName("channel").setDescription("select a channel").setRequired(true))
         .addUserOption(option => option.setName("user").setDescription("select a user").setRequired(true))
-        .addBooleanOption(option => option.setName("saving").setDescription("optional data saving").setRequired(false)),
+        .addBooleanOption(option => option.setName("saveEmojis").setDescription("optional emojis saving").setRequired(false)),
 ].map(command => command.toJSON());
 
 export const guildCommands = [];
