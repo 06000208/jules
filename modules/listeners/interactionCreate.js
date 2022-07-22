@@ -3,7 +3,7 @@ import { ListenerBlock } from "@a06000208/handler";
 import { owners } from "../discord.js";
 import { log } from "../log.js";
 import { Interaction } from "discord.js";
-import { ping, about, quit, guilds } from "../components/commands.js";
+import { ping, about, quit, guilds, estimate } from "../components/commands.js";
 import { channelCommand } from "../components/channelProcessing.js";
 
 export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Interaction} interaction */ async function(interaction) {
@@ -29,11 +29,13 @@ export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Int
     switch (interaction.commandName) {
         case "guilds":
             return await guilds(interaction);
-        case "quit":
-        case "exit":
-            return await quit(interaction);
+        case "estimate":
+            return await estimate(interaction);
         case "clear":
         case "save":
             return await channelCommand(interaction);
+        case "quit":
+        case "exit":
+            return await quit(interaction);
     }
 });

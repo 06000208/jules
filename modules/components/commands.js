@@ -2,6 +2,9 @@ import { name, packageData, version } from "../constants.js";
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { discord, owners } from "../discord.js";
 import { log } from "../log.js";
+import { DateTime } from "luxon";
+import { Interval } from "luxon";
+import humanizeDuration from "humanize-duration";
 
 /**
  * ping command
@@ -61,5 +64,37 @@ export const guilds = async function(command) {
     await command.reply({
         content: list,
         ephemeral: true,
+    });
+};
+
+/**
+ * estimate
+ * @param {CommandInteraction} command
+ */
+export const estimate = async function(command) {
+    const type = command.options.getSubcommand();
+    const totalMessages = command.options.getInteger("total");
+    const validMessages = command.options.getInteger("filtered") || 0;
+    if (validMessages > totalMessages) {
+        return command.reply({
+            content: "valid messages can't be larger than the total messages",
+            ephemeral: true,
+        });
+    }
+    const ephemeral = command.options.getBoolean("ephemeral");
+    const start = DateTime.fromMillis(0);
+    const timeToFetch = start.plus({ seconds: Math.round(totalMessages / 100) });
+    let msg = null;
+    if (type === "save") {
+        const savingInterval = Interval.fromDateTimes(start, timeToFetch);
+        msg = `saving would take at least ${humanizeDuration(savingInterval.length("milliseconds"))}`;
+    } else if (type === "clear") {
+        const timeToDelete = timeToFetch.plus({ seconds: validMessages });
+        const deletingInterval = Interval.fromDateTimes(start, timeToDelete);
+        msg = `clearing would take at least ${humanizeDuration(deletingInterval.length("milliseconds"))}`;
+    }
+    await command.reply({
+        content: msg,
+        ephemeral: ephemeral === false ? false : true,
     });
 };
