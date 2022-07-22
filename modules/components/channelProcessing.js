@@ -225,7 +225,7 @@ const clear = async function(command, channel, user) {
     const confirmation = await confirmAction(command, `are you sure you wish to delete all messages from ${user} (${user.tag}) in ${channel}?`);
     if (!confirmation) return; // confirmAction already replies
     await command.editReply({
-        content: `confirmed, deleting all messages from ${user.tag} in ${channel}`,
+        content: `confirmed, deleting all messages from ${user.tag} in ${channel}${saving ? " and saving certain data" : ""}`,
         components: [],
     });
     const startMsg = `${command.user.tag} (${command.user.id}) succesfully used /clear, deleting all messages from ${user.tag} in #${channel.name} (${channel.id})`;
@@ -238,7 +238,7 @@ const clear = async function(command, channel, user) {
     const callback = saving ? saveDataAndDeleteMessage : deleteMessage;
     const results = await processAllChannelMessages(command.user, channel, callback, user);
     return await hook.send({
-        content: `finished iterating #${channel.name} (${channel.id}) ${user ? `filtering by ${user.tag} (${user.id})` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and attempted to delete ${results.valid} in ${results.duration}`,
+        content: `finished iterating #${channel.name} (${channel.id}) ${user ? `filtering by ${user.tag}` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and attempted to delete ${results.valid} in ${results.duration}`,
         username: command.client.user.username,
         avatarURL: command.client.user.avatarURL({ format: "png" }),
     });
