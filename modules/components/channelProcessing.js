@@ -62,6 +62,7 @@ const processAllChannelMessages = async function(authorizer, channel, callback, 
     let iterating = true;
     while (iterating) {
         analytics.data[id].loops++;
+        // not scientific, has avoided getting internally delayed by discord.js though
         if (before) await wait(1000);
         const messages = await channel.messages.fetch(before ? { "limit": 100, "before": before } : { "limit": 100 });
         analytics.data[id].processed += messages.size;
@@ -195,21 +196,24 @@ const save = async function(command, channel, user) {
 };
 
 /**
+ * Used as /clear's callback when saving isn't `true`
+ * @param {Message} message
+ */
+const deleteMessage = async function(message) {
+    if (message.deletable) {
+        await message.delete();
+        await wait(1000);
+    }
+};
+
+/**
  * Used as /clear's callback when you provide the optional saving parameter set
  * to `true`
  * @param {Message} message
  */
 const saveDataAndDeleteMessage = async function(message) {
     await collectData(message);
-    if (message.deletable) await message.delete();
-};
-
-/**
- * Used as /clear's callback when saving isn't `true`
- * @param {Message} message
- */
-const deleteMessage = async function(message) {
-    if (message.deletable) await message.delete();
+    await deleteMessage(message);
 };
 
 /**
