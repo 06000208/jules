@@ -2,8 +2,8 @@
 
 purpose built discord bot for administrative utilities, such as:
 
-- deleting all messages from a user in a channel
-- archival features
+- deleting all messages from a user in a channel, optionally saving emojis
+- saving emoji data from all messages in a channel, optionally filtered by user
 
 ## install
 
