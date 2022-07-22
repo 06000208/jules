@@ -37,7 +37,6 @@ Thumbs.db
 *.env
 *.log
 *.sqlite
-data/*
-!data/.gitkeep
-logs/*
-!logs/.gitkeep
+data/*.json
+data/attachments/*
+!data/attachments/.gitkeep
