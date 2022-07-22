@@ -5,8 +5,8 @@ export const commands = [
     new SlashCommandBuilder().setName("about").setDescription("basic info about the bot"),
     new SlashCommandBuilder().setName("help").setDescription("alias for /about"),
     new SlashCommandBuilder().setName("ping").setDescription("checks latency"),
-    new SlashCommandBuilder().setName("exit").setDescription("exits process peacefully"),
-    new SlashCommandBuilder().setName("quit").setDescription("alias for /exit"),
+    new SlashCommandBuilder().setName("quit").setDescription("exits process peacefully"),
+    new SlashCommandBuilder().setName("exit").setDescription("alias for /quit"),
     new SlashCommandBuilder().setName("guilds").setDescription("list of guilds"),
     new SlashCommandBuilder().setName("save")
         .setDescription("saves data from a channel")
