@@ -38,10 +38,8 @@ DISCORD_CLIENT_ID=""
 DISCORD_OWNER_IDS=""
 
 # booleans that control what data is saved when using /save, or /clear with optional saving enabled
-# must be explictly set to true as shown to be considered enabled, omitting them is fine
+# must be explictly set to true as shown to be considered enabled, omitting it or any other value will be considered false
 JULES_SAVE_EMOJIS=true
-JULES_SAVE_LINKS=false
-JULES_SAVE_ATTACHMENTS=false
 ```
 
 if editing using vsc, [this extension](https://marketplace.visualstudio.com/items?itemName=mikestead.dotenv) provides syntax highlighting for the dotenv file syntax

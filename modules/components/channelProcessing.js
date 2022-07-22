@@ -2,8 +2,8 @@ import { setTimeout as wait } from "node:timers/promises";
 import { DiscordSnowflake } from "@sapphire/snowflake";
 import { BaseGuildTextChannel, ButtonInteraction, CommandInteraction, Message, MessageActionRow, MessageButton, Permissions, User } from "discord.js";
 import { DateTime, Interval } from "luxon";
-import { analytics } from "../databases.js";
-import { collectData, saveAttachments, saveEmojis, saveLinks } from "./dataCollection.js";
+import { analytics, emojis } from "../databases.js";
+import { collectData, saveData } from "./dataCollection.js";
 import { log } from "../log.js";
 import { hook } from "../webhook.js";
 
@@ -161,14 +161,16 @@ const confirmAction = async function(command, action) {
  * @private
  */
 const save = async function(command, channel, user) {
-    if (!saveEmojis && !saveLinks && !saveAttachments) {
+    if (!saveData) {
         return await command.reply({
-            content: "unable to proceed, all forms of saving data are explictly disabled",
+            content: "unable to proceed, saving emojis is explictly disabled",
             ephemeral: true,
         });
     }
+    // ask for confirmation
     const confirmation = await confirmAction(command, `are you sure you wish to save data ${user ? `from ${user} (${user.tag}) in` : `from`} ${channel}?`);
-    if (!confirmation) return; // confirmAction already replies
+    if (!confirmation) return;
+    // reply to the user & send message via webhook
     await command.editReply({
         content: `confirmed, saving data ${user ? `from ${user} (${user.tag}) in` : `from`} ${channel} (${channel.id})`,
         components: [],
@@ -180,7 +182,11 @@ const save = async function(command, channel, user) {
         username: command.client.user.username,
         avatarURL: command.client.user.avatarURL({ format: "png" }),
     });
+    // start
+    await emojis.read();
     const results = await processAllChannelMessages(command.user, channel, collectData, user);
+    // finish
+    await emojis.write();
     return await hook.send({
         content: `finished iterating #${channel.name} (${channel.id}) ${user ? `filtering by ${user.tag}` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and attempted to save data from ${results.valid} in ${results.duration}`,
         username: command.client.user.username,
@@ -189,14 +195,17 @@ const save = async function(command, channel, user) {
 };
 
 /**
+ * Used as /clear's callback when you provide the optional saving parameter set
+ * to `true`
  * @param {Message} message
  */
 const saveDataAndDeleteMessage = async function(message) {
-    collectData(message);
+    await collectData(message);
     if (message.deletable) await message.delete();
 };
 
 /**
+ * Used as /clear's callback when saving isn't `true`
  * @param {Message} message
  */
 const deleteMessage = async function(message) {
@@ -216,14 +225,16 @@ const clear = async function(command, channel, user) {
      * @type {null|boolean}
      */
     const saving = command.options.getBoolean("saving");
-    if (saving && (!saveEmojis && !saveLinks && !saveAttachments)) {
+    if (saving && !saveData) {
         return await command.reply({
-            content: "unable to proceed with saving enabled, all forms of saving data are explictly disabled",
+            content: "unable to proceed with saving enabled, saving emojis is explictly disabled",
             ephemeral: true,
         });
     }
+    // ask for confirmation
     const confirmation = await confirmAction(command, `are you sure you wish to delete all messages from ${user} (${user.tag}) in ${channel}?`);
-    if (!confirmation) return; // confirmAction already replies
+    if (!confirmation) return;
+    // reply to the user & send message via webhook
     await command.editReply({
         content: `confirmed, deleting all messages from ${user.tag} in ${channel}${saving ? " and saving certain data" : ""}`,
         components: [],
@@ -235,8 +246,13 @@ const clear = async function(command, channel, user) {
         username: command.client.user.username,
         avatarURL: command.client.user.avatarURL({ format: "png" }),
     });
+    // start
+    // don't need to check saveData again as when its false this code is never reached
+    if (saving) await emojis.read();
     const callback = saving ? saveDataAndDeleteMessage : deleteMessage;
     const results = await processAllChannelMessages(command.user, channel, callback, user);
+    // finish
+    if (saving) await emojis.write();
     return await hook.send({
         content: `finished iterating #${channel.name} (${channel.id}) ${user ? `filtering by ${user.tag}` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and attempted to delete ${results.valid} in ${results.duration}`,
         username: command.client.user.username,

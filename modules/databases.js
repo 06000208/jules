@@ -24,24 +24,4 @@ if (!emojis.data) {
     await emojis.write();
 }
 
-/**
- * lowdb json database used for saving links when enabled
- */
-export const links = new Low(new JSONFile(join(directory, "data", "links.json")));
-await links.read();
-if (!links.data) {
-    links.data = {};
-    await links.write();
-}
-
-/**
- * lowdb json database used for saving attachments when enabled
- */
-export const attachments = new Low(new JSONFile(join(directory, "data", "attachments.json")));
-await attachments.read();
-if (!attachments.data) {
-    attachments.data = {};
-    await attachments.write();
-}
-
 log.info("Started databases");

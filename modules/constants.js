@@ -42,8 +42,6 @@ const environmentVariables = [
     "discord_client_id",
     "discord_owner_ids",
     "jules_save_emojis",
-    "jules_save_links",
-    "jules_save_attachments",
 ];
 
 /**

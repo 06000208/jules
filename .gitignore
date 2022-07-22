@@ -38,5 +38,3 @@ Thumbs.db
 *.log
 *.sqlite
 data/*.json
-data/attachments/*
-!data/attachments/.gitkeep
