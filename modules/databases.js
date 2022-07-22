@@ -20,7 +20,7 @@ if (!analytics.data) {
 export const emojis = new Low(new JSONFile(join(directory, "data", "emojis.json")));
 await emojis.read();
 if (!emojis.data) {
-    analytics.data = {};
+    emojis.data = {};
     await emojis.write();
 }
 
