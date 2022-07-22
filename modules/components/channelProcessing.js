@@ -63,11 +63,11 @@ const processAllChannelMessages = async function(authorizer, channel, callback, 
     let iterating = true;
     while (iterating) {
         analytics.data[id].loops++;
-        // not scientific, simply avoids hitting discord with more than 1r/0.5s
+        // not scientific, simply avoids hitting discord with more than 1r/1s
         // discord.js has its own internal rate limits and action queues based
         // on the cooldowns it gets in the responses from discord, so it could
         // be safe to lower it, but id prefer not
-        if (before) await wait(500);
+        if (before) await wait(1000);
         const messages = await channel.messages.fetch(before ? { "limit": 100, "before": before } : { "limit": 100 });
         analytics.data[id].processed += messages.size;
         const validMessages = user ? messages.filter((message) => message.author.id === user.id) : messages;
@@ -201,11 +201,11 @@ const save = async function(command, channel, user) {
 const deleteMessage = async function(message) {
     if (message.deletable) {
         await message.delete();
-        // not scientific, simply avoids hitting discord with more than 1r/0.5s
+        // not scientific, simply avoids hitting discord with more than 1r/1s
         // discord.js has its own internal rate limits and action queues based
         // on the cooldowns it gets in the responses from discord, so it could
         // be safe to lower it, but id prefer not
-        await wait(500);
+        await wait(1000);
     }
 };
 

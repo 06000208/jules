@@ -1,3 +1,7 @@
+## 1.1.1
+
+- put request delays back to 1000ms
+
 ## [1.1.0](https://github.com/06000208/jules/releases/tag/1.1.0)
 
 - rebrand to jules
