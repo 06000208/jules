@@ -23,7 +23,7 @@
     "@a06000208/handler": "github:06000208/handler",
     "@discordjs/builders": "^0.16.0",
     "@discordjs/rest": "^0.5.0",
-    "@sapphire/ratelimits": "^2.4.4",
+    "@sapphire/discord.js-utilities": "^4.11.3",
     "@sapphire/snowflake": "^3.2.2",
     "discord-api-types": "^0.36.2",
     "discord.js": "^13.8.1",
