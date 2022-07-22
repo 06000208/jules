@@ -164,32 +164,33 @@ const confirmAction = async function(command, action) {
 const save = async function(command, channel, user) {
     if (!saveData) {
         return await command.reply({
-            content: "unable to proceed, saving emojis is explictly disabled",
+            content: "unable to proceed, saving emojis is disabled",
             ephemeral: true,
         });
     }
     // ask for confirmation
-    const confirmation = await confirmAction(command, `are you sure you wish to save data ${user ? `from ${user} (${user.tag}) in` : `from`} ${channel}?`);
+    const confirmation = await confirmAction(command, `are you sure you wish to save emojis ${user ? `from ${user} (${user.tag}) in` : `from`} ${channel}?`);
     if (!confirmation) return;
     // reply to the user & send message via webhook
+    log.debug(`${command.user.tag} (${command.user.id}) succesfully used /save, saving emojis ${user ? `from ${user.tag} (${user.id}) in` : `from`} #${channel.name} (${channel.id})`);
     await command.editReply({
-        content: `confirmed, saving data ${user ? `from ${user} (${user.tag}) in` : `from`} ${channel} (${channel.id})`,
+        content: `confirmed, saving emojis ${user ? `from ${user.tag} in` : `from`} #${channel.name}`,
         components: [],
     });
-    const startMsg = `${command.user.tag} (${command.user.id}) succesfully used /save, saving data ${user ? `from ${user.tag} in` : `from`} #${channel.name} (${channel.id})`;
-    log.debug(startMsg);
     await hook.send({
-        content: startMsg,
+        content: `${command.user.tag} succesfully used /save, saving emojis ${user ? `from ${user.tag} in` : `from`} #${channel.name}`,
         username: command.client.user.username,
         avatarURL: command.client.user.avatarURL({ format: "png" }),
     });
     // start
     await emojis.read();
+    const knownEmojis = Object.keys(emojis.data).length;
     const results = await processAllChannelMessages(command.user, channel, collectData, user);
     // finish
     await emojis.write();
+    const newEmojis = Object.keys(emojis.data).length - knownEmojis;
     return await hook.send({
-        content: `finished iterating #${channel.name} (${channel.id}) ${user ? `filtering by ${user.tag}` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and attempted to save data from ${results.valid} in ${results.duration}`,
+        content: `finished iterating #${channel.name} ${user ? `using ${user.tag} as a filter` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and found ${newEmojis} new emojis in ${results.duration}`,
         username: command.client.user.username,
         avatarURL: command.client.user.avatarURL({ format: "png" }),
     });
@@ -228,10 +229,10 @@ const clear = async function(command, channel, user) {
      * Optional boolean parameter
      * @type {null|boolean}
      */
-    const saving = command.options.getBoolean("saving");
+    const saving = command.options.getBoolean("saveEmojis");
     if (saving && !saveData) {
         return await command.reply({
-            content: "unable to proceed with saving enabled, saving emojis is explictly disabled",
+            content: "unable to proceed with saving enabled, saving emojis is disabled",
             ephemeral: true,
         });
     }
@@ -239,29 +240,31 @@ const clear = async function(command, channel, user) {
     const confirmation = await confirmAction(command, `are you sure you wish to delete all messages from ${user} (${user.tag}) in ${channel}?`);
     if (!confirmation) return;
     // reply to the user & send message via webhook
+    log.debug(`${command.user.tag} (${command.user.id}) succesfully used /clear, deleting all messages from ${user.tag} (${user.id}) in #${channel.name} (${channel.id})`);
     await command.editReply({
-        content: `confirmed, deleting all messages from ${user.tag} in ${channel}${saving ? " and saving certain data" : ""}`,
+        content: `confirmed, deleting all messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in ${channel}`,
         components: [],
     });
-    const startMsg = `${command.user.tag} (${command.user.id}) succesfully used /clear, deleting all messages from ${user.tag} in #${channel.name} (${channel.id})`;
-    log.debug(startMsg);
     await hook.send({
-        content: startMsg,
+        content: `${command.user.tag} succesfully used /clear, deleting all messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in #${channel.name}`,
         username: command.client.user.username,
         avatarURL: command.client.user.avatarURL({ format: "png" }),
     });
     // start
     // don't need to check saveData again as when its false this code is never reached
     if (saving) await emojis.read();
+    const knownEmojis = saving ? Object.keys(emojis.data).length : 0;
     const callback = saving ? saveDataAndDeleteMessage : deleteMessage;
     const results = await processAllChannelMessages(command.user, channel, callback, user);
     // finish
     if (saving) await emojis.write();
+    const newEmojis = saving ? Object.keys(emojis.data).length - knownEmojis : 0;
     return await hook.send({
-        content: `finished iterating #${channel.name} (${channel.id}) ${user ? `filtering by ${user.tag}` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and attempted to delete ${results.valid} in ${results.duration}`,
+        content: `finished iterating #${channel.name} using ${user.tag} as a filter, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"}, ${saving ? `found ${newEmojis} new emojis` : "did not check for emojis"}, and attempted to delete ${results.valid} in ${results.duration}`,
         username: command.client.user.username,
         avatarURL: command.client.user.avatarURL({ format: "png" }),
     });
+
 };
 
 /**
