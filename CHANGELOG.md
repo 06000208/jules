@@ -1,6 +1,7 @@
 ## 1.1.1
 
 - put request delays back to 1000ms
+- ensured the bot will crash on unhandled rejections, such as api errors like Invalid Webhook token
 
 ## [1.1.0](https://github.com/06000208/jules/releases/tag/1.1.0)
 

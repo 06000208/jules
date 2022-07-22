@@ -20,10 +20,11 @@ process.on("unhandledRejection", (reason, promise) => {
         console.error(`unhandledRejection\n`, promise, reason);
         log.error("unhandledRejection, see console for further information");
     }
+    process.exit(1); // Always let code exit on unhandled rejections
 });
 process.on("rejectionHandled", (promise) => {
-    log.debug("rejectionHandled, see console for further information");
     console.log("rejectionHandled\n", promise);
+    log.debug("rejectionHandled, see console for further information");
 });
 process.on("warning", (warning) => log.warn(warning));
 process.on("exit", (code) => code === 0 ? console.log("Exiting peacefully") : console.warn(`Exiting abnormally with code ${code}`));
