@@ -23,9 +23,9 @@ export const about = async function(command) {
     const embed = new MessageEmbed();
     embed.setTitle(command.client.user.username);
     embed.setURL(`https://discord.com/api/oauth2/authorize?client_id=${command.client.user.id}&permissions=431644601408&scope=bot%20applications.commands`);
-    embed.setDescription(`running [${name}](<${packageData.homepage}>) v${version}, for further info ${owners.length == 1 ? "contact" : "contact someone on this list:"} <@${owners.join(">, <@")}>`);
-    embed.addField("Commands", "`/ping`, `/about`, `/exit`, `/guilds`, `/clear`", true);
-    embed.addField("Note", "the `/exit`, /guilds, and `/clear` commands are restricted, and the last requires you to have Manage Messages to appear as an option");
+    embed.setDescription(`running [${name}](<${packageData.homepage}>) source code v${version}, for further info ${owners.length == 1 ? "contact" : "contact someone on this list:"} <@${owners.join(">, <@")}>`);
+    embed.addField("Commands", "`/ping`, `/about`, `/exit`, `/guilds`, `/save`, `/clear`", true);
+    embed.addField("Note", "the `/exit`, /guilds, `/save`, and `/clear` commands are restricted, and the latter two requires you have Manage Messages to appear as an option");
     return await command.reply({
         embeds: [ embed ],
         ephemeral: true,
