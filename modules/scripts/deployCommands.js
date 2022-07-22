@@ -12,13 +12,15 @@ try {
     log.info("Deploying commands...");
     await rest.put(Routes.applicationCommands(env.discord_client_id), { body: commands });
     log.info("Successfully deployed application commands");
-    // if (env.discord_guild_ids) {
-    //     const guilds = env.discord_guild_ids.split(",").map((str) => str.trim());
-    //     for (const id of guilds) {
-    //         await rest.put(Routes.applicationGuildCommands(env.discord_client_id, id), { body: guildCommands });
-    //     }
-    //     log.info("Successfully deployed guild-specific application commands");
-    // }
+    /*
+    if (env.discord_guild_ids) {
+        const guilds = env.discord_guild_ids.split(",").map((str) => str.trim());
+        for (const id of guilds) {
+            await rest.put(Routes.applicationGuildCommands(env.discord_client_id, id), { body: guildCommands });
+        }
+        log.info("Successfully deployed guild-specific application commands");
+    }
+    */
 } catch (error) {
     console.error(error);
     log.error(
