@@ -38,6 +38,7 @@ const version = packageData.version;
 const environmentVariables = [
     "dev",
     "discord_token",
+    "discord_webhook_url",
     "discord_client_id",
     "discord_owner_ids",
     "jules_save_emojis",

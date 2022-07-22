@@ -27,13 +27,17 @@ put the following content in a plain text `.env` file in same folder as index.js
 # your bot's discord token
 DISCORD_TOKEN=""
 
+# a url for a webhook, logs when the channel processing commands (/save and /clear) start and finish
+# this is due to the time limit command interactions have for using followUp()
+DISCORD_WEBHOOK_URL=""
+
 # your bot's discord id, used for deploying commands via REST api
 DISCORD_CLIENT_ID=""
 
 # ids of discord users which may run restricted commands, in a single string, separated by commas
 DISCORD_OWNER_IDS=""
 
-# booleans that control what data is saved when using either /save or /clear with optional saving enabled
+# booleans that control what data is saved when using /save, or /clear with optional saving enabled
 # must be explictly set to true as shown to be considered enabled, omitting them is fine
 JULES_SAVE_EMOJIS=true
 JULES_SAVE_LINKS=false
