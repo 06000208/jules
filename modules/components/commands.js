@@ -33,12 +33,12 @@ export const about = async function(command) {
 };
 
 /**
- * exit command
+ * quit command
  * @param {CommandInteraction} command
  */
-export const exit = async function(command) {
+export const quit = async function(command) {
     // exit command
-    log.info(`${command.user.tag} (${command.user.id}) used /exit, destroying client & exiting peacefully`);
+    log.info(`${command.user.tag} (${command.user.id}) used /quit, destroying client & exiting peacefully`);
     await command.reply({
         content: "exiting...",
         ephemeral: true,

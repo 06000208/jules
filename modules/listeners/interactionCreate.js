@@ -31,7 +31,7 @@ export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Int
             return await guilds(interaction);
         case "quit":
         case "exit":
-            return await exit(interaction);
+            return await quit(interaction);
         case "clear":
         case "save":
             return await channelCommand(interaction);
