@@ -3,7 +3,7 @@ import { ListenerBlock } from "@a06000208/handler";
 import { owners } from "../discord.js";
 import { log } from "../log.js";
 import { Interaction } from "discord.js";
-import { ping, about, exit, guilds } from "../components/commands.js";
+import { ping, about, quit, guilds } from "../components/commands.js";
 import { channelCommand } from "../components/channelProcessing.js";
 
 export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Interaction} interaction */ async function(interaction) {

@@ -40,7 +40,7 @@ export const quit = async function(command) {
     // exit command
     log.info(`${command.user.tag} (${command.user.id}) used /quit, destroying client & exiting peacefully`);
     await command.reply({
-        content: "exiting...",
+        content: "quitting...",
         ephemeral: true,
     });
     discord.destroy();
