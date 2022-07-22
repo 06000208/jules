@@ -20,7 +20,7 @@ export const commands = [
         .setDMPermission(false)
         .addChannelOption(option => option.setName("channel").setDescription("select a channel").setRequired(true))
         .addUserOption(option => option.setName("user").setDescription("select a user").setRequired(true))
-        .addBooleanOption(option => option.setName("saveEmojis").setDescription("optional emojis saving").setRequired(false)),
+        .addBooleanOption(option => option.setName("emojis").setDescription("optional emojis saving").setRequired(false)),
 ].map(command => command.toJSON());
 
 export const guildCommands = [];
