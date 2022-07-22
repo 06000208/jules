@@ -35,7 +35,15 @@ const version = packageData.version;
  * @see https://web.archive.org/web/20220415192041id_/https://google.github.io/styleguide/shellguide.html#s7.3-constants-and-environment-variable-names
  * @type {string[]}
  */
-const environmentVariables = ["dev", "discord_token", "discord_id", "discord_guild_ids", "discord_owner_ids"];
+const environmentVariables = [
+    "dev",
+    "discord_token",
+    "discord_client_id",
+    "discord_owner_ids",
+    "jules_save_emojis",
+    "jules_save_links",
+    "jules_save_attachments",
+];
 
 /**
  * Presence for use on start up

@@ -21,18 +21,26 @@ purpose built discord bot for administrative utilities, such as:
 
 ## envionrment variables
 
-put these in a plain text `.env` file in same folder as index.js, or use them as environment variables, which is platform specific
+put the following content in a plain text `.env` file in same folder as index.js and edit it as described, or use the names as environment variables, which is more tedious and platform specific
 
 ```bash
 # your bot's discord token
 DISCORD_TOKEN=""
+
 # your bot's discord id, used for deploying commands via REST api
-DISCORD_ID=""
-# ids of discord guilds that should have guild-exclusive commands deployed, in a single string, separated by commas
-DISCORD_GUILD_IDS=""
+DISCORD_CLIENT_ID=""
+
 # ids of discord users which may run restricted commands, in a single string, separated by commas
 DISCORD_OWNER_IDS=""
+
+# booleans that control what data is saved when using either /save or /clear with optional saving enabled
+# must be explictly set to true as shown to be considered enabled
+JULES_SAVE_EMOJIS=true
+JULES_SAVE_LINKS=false
+JULES_SAVE_ATTACHMENTS=false
 ```
+
+if editing using vsc, [this extension](https://marketplace.visualstudio.com/items?itemName=mikestead.dotenv) provides syntax highlighting for the dotenv file syntax
 
 ## code auditing
 
