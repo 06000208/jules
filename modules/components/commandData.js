@@ -26,14 +26,18 @@ export const commands = [
         .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES)
         .setDMPermission(false)
         .addChannelOption(option => option.setName("channel").setDescription("select a channel").setRequired(true))
-        .addUserOption(option => option.setName("user").setDescription("optional user filter").setRequired(false)),
+        .addUserOption(option => option.setName("user").setDescription("user filter?").setRequired(false))
+        .addStringOption(option => option.setName("after").setDescription("msg id after range").setRequired(false))
+        .addStringOption(option => option.setName("before").setDescription("msg id before range").setRequired(false)),
     new SlashCommandBuilder().setName("clear")
         .setDescription("clears a channel of messages from a user")
         .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES)
         .setDMPermission(false)
         .addChannelOption(option => option.setName("channel").setDescription("select a channel").setRequired(true))
         .addUserOption(option => option.setName("user").setDescription("select a user").setRequired(true))
-        .addBooleanOption(option => option.setName("emojis").setDescription("optional emojis saving").setRequired(false)),
+        .addBooleanOption(option => option.setName("emojis").setDescription("save emojis?").setRequired(false))
+        .addStringOption(option => option.setName("after").setDescription("msg id after range").setRequired(false))
+        .addStringOption(option => option.setName("before").setDescription("msg id before range").setRequired(false)),
 ].map(command => command.toJSON());
 
 export const guildCommands = [];

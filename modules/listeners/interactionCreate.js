@@ -4,7 +4,7 @@ import { owners } from "../discord.js";
 import { log } from "../log.js";
 import { Interaction } from "discord.js";
 import { ping, about, quit, guilds, estimate } from "../components/commands.js";
-import { channelCommand } from "../components/channelProcessing.js";
+import { channelCommand } from "../components/channelCommands.js";
 
 export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Interaction} interaction */ async function(interaction) {
     if (!interaction.isCommand()) return;
