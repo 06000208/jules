@@ -32,13 +32,13 @@ DISCORD_TOKEN=""
 
 # your bot's discord id, used for deploying commands via REST api
 DISCORD_CLIENT_ID=""
+
+# ids of discord users which may run restricted commands, in a single string, separated by commas
+DISCORD_OWNER_IDS=""
 ```
 
 additionally, there are some optional variables, which are needed for some functionality but may be omitted or set to an empty string (`EXAMPLE=` or `EXAMPLE=""`) if you do not wish to use them
 ```bash
-# ids of discord users which may run restricted commands, in a single string, separated by commas
-DISCORD_OWNER_IDS=""
-
 # a webhook url to log when channel processing jobs (via json, /save, /clear) start and finish
 # this is because bots have a time limit to respond to interactions
 DISCORD_WEBHOOK_URL=""
