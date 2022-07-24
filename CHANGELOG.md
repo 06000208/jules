@@ -1,6 +1,6 @@
 ## [1.2.0](https://github.com/06000208/jules/releases/tag/1.2.0)
 
-
+- made using the webhook optional
 
 ## [1.1.0](https://github.com/06000208/jules/releases/tag/1.1.0)
 

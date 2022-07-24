@@ -3,13 +3,24 @@ import { WebhookClient } from "discord.js";
 import { WebhookRegex } from "@sapphire/discord.js-utilities";
 import { log } from "./log.js";
 
-if (!env.discord_webhook_url) throw new Error("Variable discord_webhook_url is unset");
+/**
+ * @param {?string} url
+ * @returns {boolean}
+ */
+const validateWebhookUrl = function(url) {
+    if (!url) return false;
+    if (typeof url != "string") return false;
+    const parsed = WebhookRegex.exec(url);
+    return parsed.groups.url && parsed.groups.id && parsed.groups.token;
+};
 
-const parsed = WebhookRegex.exec(env.discord_webhook_url);
-if (!parsed.groups.url || !parsed.groups.id || !parsed.groups.token) throw new Error("The provided webhook url is invalid");
+/**
+ * Optional webhook used throughout the bot
+ *
+ * If the `DISCORD_WEBHOOK_URL` envionrment variable is omitted, an empty
+ * string, or fails to pass the regular expression, this will be null
+ * @type {?WebhookClient}
+ */
+export const hook = validateWebhookUrl(env.discord_webhook_url) ? new WebhookClient({ url: env.discord_webhook_url }) : null;
 
-export const hook = new WebhookClient({
-    url: env.discord_webhook_url,
-});
-
-log.info("Instantiated webhook client");
+log.info(hook ? "Instantiated webhook client" : "Webhook is disabled");

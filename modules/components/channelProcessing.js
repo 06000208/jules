@@ -175,11 +175,13 @@ const save = async function(command, channel, user) {
         content: `confirmed, saving emojis ${user ? `from ${user.tag} in` : `from`} ${channel}`,
         components: [],
     });
-    await hook.send({
-        content: `${command.user.tag} succesfully used /save, saving emojis ${user ? `from ${user.tag} in` : `from`} ${channel}`,
-        username: command.client.user.username,
-        avatarURL: command.client.user.avatarURL({ format: "png" }),
-    });
+    if (hook) {
+        await hook.send({
+            content: `${command.user.tag} succesfully used /save, saving emojis ${user ? `from ${user.tag} in` : `from`} ${channel}`,
+            username: command.client.user.username,
+            avatarURL: command.client.user.avatarURL({ format: "png" }),
+        });
+    }
     // start
     await emojis.read();
     const knownEmojis = Object.keys(emojis.data).length;
@@ -187,11 +189,13 @@ const save = async function(command, channel, user) {
     // finish
     await emojis.write();
     const newEmojis = Object.keys(emojis.data).length - knownEmojis;
-    return await hook.send({
-        content: `finished iterating ${channel} ${user ? `using ${user.tag} as a filter` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and found ${newEmojis} new emojis in ${results.duration}`,
-        username: command.client.user.username,
-        avatarURL: command.client.user.avatarURL({ format: "png" }),
-    });
+    if (hook) {
+        await hook.send({
+            content: `finished iterating ${channel} ${user ? `using ${user.tag} as a filter` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and found ${newEmojis} new emojis in ${results.duration}`,
+            username: command.client.user.username,
+            avatarURL: command.client.user.avatarURL({ format: "png" }),
+        });
+    }
 };
 
 /**
@@ -247,11 +251,13 @@ const clear = async function(command, channel, user) {
         content: `confirmed, deleting all messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in ${channel}`,
         components: [],
     });
-    await hook.send({
-        content: `${command.user.tag} succesfully used /clear, deleting all messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in ${channel}`,
-        username: command.client.user.username,
-        avatarURL: command.client.user.avatarURL({ format: "png" }),
-    });
+    if (hook) {
+        await hook.send({
+            content: `${command.user.tag} succesfully used /clear, deleting all messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in ${channel}`,
+            username: command.client.user.username,
+            avatarURL: command.client.user.avatarURL({ format: "png" }),
+        });
+    }
     // start
     // don't need to check saveData again as when its false this code is never reached
     if (saving) await emojis.read();
@@ -261,11 +267,13 @@ const clear = async function(command, channel, user) {
     // finish
     if (saving) await emojis.write();
     const newEmojis = saving ? Object.keys(emojis.data).length - knownEmojis : 0;
-    return await hook.send({
-        content: `finished iterating ${channel} using ${user.tag} as a filter, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"}, ${saving ? `found ${newEmojis} new emojis` : "did not check for emojis"}, and attempted to delete ${results.valid} in ${results.duration}`,
-        username: command.client.user.username,
-        avatarURL: command.client.user.avatarURL({ format: "png" }),
-    });
+    if (hook) {
+        return await hook.send({
+            content: `finished iterating ${channel} using ${user.tag} as a filter, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"}, ${saving ? `found ${newEmojis} new emojis` : "did not check for emojis"}, and attempted to delete ${results.valid} in ${results.duration}`,
+            username: command.client.user.username,
+            avatarURL: command.client.user.avatarURL({ format: "png" }),
+        });
+    }
 };
 
 /**

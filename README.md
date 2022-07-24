@@ -6,7 +6,7 @@ purpose built discord bot for administrative utilities, such as:
 - saving emoji data from all messages in a channel, optionally filtered by user
 - [configuring jobs via json](./JOBS.md)
 
-for information on json defined jobs, see the linked markdown file
+for information on using json defined jobs, see the above link
 
 ## install
 
