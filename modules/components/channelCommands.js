@@ -1,6 +1,6 @@
-import { SnowflakeRegex } from "@sapphire/discord.js-utilities";
+import { SnowflakeRegex } from "@sapphire/discord-utilities";
 import { DiscordSnowflake } from "@sapphire/snowflake";
-import { BaseGuildTextChannel, CommandInteraction, Permissions, User } from "discord.js";
+import { BaseGuildTextChannel, ChannelType, CommandInteraction, PermissionsBitField, User } from "discord.js";
 import { log } from "../log.js";
 import { clear, describeBounds, save } from "./channelProcessing.js";
 import { confirmAction } from "./confirmAction.js";
@@ -16,7 +16,6 @@ import { saveData } from "./dataCollection.js";
  * @private
  */
 const saveCommand = async function(command, channel, user, before, after) {
-    console.log(`before ${before}, after ${after}`);
     if (!saveData) {
         return await command.reply({
             content: "unable to proceed, saving emojis is disabled",
@@ -43,7 +42,6 @@ const saveCommand = async function(command, channel, user, before, after) {
  * @private
  */
 const clearCommand = async function(command, channel, user, before, after) {
-    console.log(`before ${before}, after ${after}`);
     /**
      * Optional boolean parameter
      * @type {null|boolean}
@@ -90,9 +88,8 @@ export const channelCommand = async function(command) {
      * @type {?string}
      */
     const before = command.options.getString("before");
-    console.log(`before ${before}, after ${after}`);
     // not sure if this can happen but might as well prevent it
-    if (channel.type === "DM") {
+    if (channel.type === ChannelType.DM) {
         log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} on dms`);
         return await command.reply({
             content: "this command may only be used on guild channels",
@@ -101,7 +98,7 @@ export const channelCommand = async function(command) {
     }
     // while someone needs manage messages to run the command, they might not
     // have it for the channel they select
-    if (!channel.permissionsFor(command.user.id, true).has(Permissions.FLAGS.MANAGE_MESSAGES)) {
+    if (!channel.permissionsFor(command.user.id, true).has(PermissionsBitField.Flags.ManageMessages)) {
         log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} without Manage Messages in #${channel.name} (${channel.id})`);
         return await command.reply({
             content: `you don't have permission to do this in ${channel}`,
@@ -109,7 +106,7 @@ export const channelCommand = async function(command) {
         });
     }
     // bot also needs Manage Messages in the supplied channel
-    if (!channel.permissionsFor(command.client.user.id, true).has(Permissions.FLAGS.MANAGE_MESSAGES)) {
+    if (!channel.permissionsFor(command.client.user.id, true).has(PermissionsBitField.Flags.ManageMessages)) {
         log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} but the bot is missing Manage Messages in #${channel.name} (${channel.id})`);
         return await command.reply({
             content: `${command.client.user} is missing Manage Messages in ${channel}, can't proceed`,

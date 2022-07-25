@@ -2,12 +2,12 @@
 import { ListenerBlock } from "@a06000208/handler";
 import { owners } from "../discord.js";
 import { log } from "../log.js";
-import { Interaction } from "discord.js";
+import { BaseInteraction, InteractionType } from "discord.js";
 import { ping, about, quit, guilds, estimate } from "../components/commands.js";
 import { channelCommand } from "../components/channelCommands.js";
 
-export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Interaction} interaction */ async function(interaction) {
-    if (!interaction.isCommand()) return;
+export default new ListenerBlock({ event: "interactionCreate" }, /** @param {BaseInteraction} interaction */ async function(interaction) {
+    if (interaction.type !== InteractionType.ApplicationCommand) return;
     if (!interaction.isRepliable()) return log.debug(`couldn't reply to a ${interaction.commandName} interaction`);
     // the 06000208/commands and 06000208/discord-framework packages are
     // too early in development to use for this rn, or else this wouldn't

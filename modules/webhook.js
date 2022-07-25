@@ -1,6 +1,6 @@
 import { env } from "node:process";
 import { WebhookClient } from "discord.js";
-import { WebhookRegex } from "@sapphire/discord.js-utilities";
+import { WebhookRegex } from "@sapphire/discord-utilities";
 import { log } from "./log.js";
 
 /**

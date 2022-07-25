@@ -1,5 +1,5 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { Permissions } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
+import { PermissionsBitField } from "discord.js";
 
 export const commands = [
     new SlashCommandBuilder().setName("about").setDescription("basic info about the bot"),
@@ -10,7 +10,7 @@ export const commands = [
     new SlashCommandBuilder().setName("guilds").setDescription("list of guilds"),
     new SlashCommandBuilder().setName("estimate")
         .setDescription("list of guilds")
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
         .setDMPermission(false)
         .addSubcommand(subcommand => subcommand.setName("clear").setDescription("estimate clearing")
             .addIntegerOption(option => option.setName("total").setDescription("total messages in a channel").setRequired(true))
@@ -23,7 +23,7 @@ export const commands = [
         ),
     new SlashCommandBuilder().setName("save")
         .setDescription("saves emojis from a channel")
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
         .setDMPermission(false)
         .addChannelOption(option => option.setName("channel").setDescription("select a channel").setRequired(true))
         .addUserOption(option => option.setName("user").setDescription("user filter?").setRequired(false))
@@ -31,7 +31,7 @@ export const commands = [
         .addStringOption(option => option.setName("before").setDescription("msg id before range").setRequired(false)),
     new SlashCommandBuilder().setName("clear")
         .setDescription("clears a channel of messages from a user")
-        .setDefaultMemberPermissions(Permissions.FLAGS.MANAGE_MESSAGES)
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
         .setDMPermission(false)
         .addChannelOption(option => option.setName("channel").setDescription("select a channel").setRequired(true))
         .addUserOption(option => option.setName("user").setDescription("select a user").setRequired(true))

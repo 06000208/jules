@@ -21,17 +21,22 @@
   "dependencies": {
     "@a06000208/discord-framework": "github:06000208/discord-framework",
     "@a06000208/handler": "github:06000208/handler",
-    "@discordjs/builders": "^0.16.0",
-    "@discordjs/rest": "^0.5.0",
-    "@sapphire/discord.js-utilities": "^4.11.3",
+    "@discordjs/rest": "^1.0.0",
+    "@sapphire/discord-utilities": "^2.11.5",
     "@sapphire/snowflake": "^3.2.2",
-    "discord-api-types": "^0.36.2",
-    "discord.js": "^13.8.1",
+    "bufferutil": "^4.0.6",
+    "discord.js": "^14.0.3",
     "dotenv": "^16.0.1",
+    "erlpack": "github:discord/erlpack",
     "humanize-duration": "^3.27.2",
     "lowdb": "^3.0.0",
     "luxon": "^3.0.1",
-    "pino": "^8.1.0",
-    "pino-pretty": "^8.1.0"
+    "pino": "^8.3.0",
+    "pino-pretty": "^8.1.0",
+    "utf-8-validate": "^5.0.9",
+    "zlib-sync": "^0.1.7"
+  },
+  "engines": {
+    "node": ">=16.9.0"
   }
 }

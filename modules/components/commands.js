@@ -1,5 +1,5 @@
 import { name, packageData, version } from "../constants.js";
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { CommandInteraction, EmbedBuilder } from "discord.js";
 import { discord, owners } from "../discord.js";
 import { log } from "../log.js";
 import { DateTime } from "luxon";
@@ -23,11 +23,14 @@ export const ping = async function(command) {
  * @param {CommandInteraction} command
  */
 export const about = async function(command) {
-    const embed = new MessageEmbed();
+    const embed = new EmbedBuilder();
     embed.setTitle(command.client.user.username);
     embed.setURL(`https://discord.com/api/oauth2/authorize?client_id=${command.client.user.id}&permissions=431644601408&scope=bot%20applications.commands`);
     embed.setDescription(`running [${name}](<${packageData.homepage}>) source code v${version}, for further info ${owners.length == 1 ? "contact" : "contact someone on this list:"} <@${owners.join(">, <@")}>`);
-    embed.addField("Note", "most commands are restricted and require you have Manage Messages to appear as an option");
+    embed.addFields({
+        name: "Note",
+        value: "most commands are restricted and require you have Manage Messages to appear as an option",
+    });
     return await command.reply({
         embeds: [ embed ],
         ephemeral: true,

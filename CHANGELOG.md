@@ -3,6 +3,7 @@
 - made using the webhook optional
 - ensured the bot will crash on unhandled rejections, such as api errors like Invalid Webhook token
 - added support optional initial before and after bounds for iterating channels
+- updated dependencies
 
 ## [1.1.0](https://github.com/06000208/jules/releases/tag/1.1.0)
 

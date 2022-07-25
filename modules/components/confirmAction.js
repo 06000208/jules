@@ -1,4 +1,4 @@
-import { ButtonInteraction, CommandInteraction, Message, MessageActionRow, MessageButton } from "discord.js";
+import { ButtonInteraction, CommandInteraction, Message, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from "discord.js";
 import { log } from "../log.js";
 
 /**
@@ -15,15 +15,15 @@ export const confirmAction = async function(command, action) {
     const confirmationPrompt = await command.reply({
         content: action,
         components: [
-            new MessageActionRow().addComponents(
-                new MessageButton()
+            new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
                     .setCustomId("yes")
                     .setLabel("Yes")
-                    .setStyle("DANGER"),
-                new MessageButton()
+                    .setStyle(ButtonStyle.Danger),
+                new ButtonBuilder()
                     .setCustomId("no")
                     .setLabel("No")
-                    .setStyle("SECONDARY"),
+                    .setStyle(ButtonStyle.Secondary),
             ),
         ],
         ephemeral: true,
@@ -40,7 +40,7 @@ export const confirmAction = async function(command, action) {
             * @param {ButtonInteraction} interaction
             */
             filter: (interaction) => interaction.user.id === command.user.id,
-            componentType: "BUTTON",
+            componentType: ComponentType.Button,
             time: 60 * 1000,
         });
     } catch (error) {

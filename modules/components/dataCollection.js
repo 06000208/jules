@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { env } from "node:process";
 import { emojis } from "../databases.js";
-import { FormattedCustomEmojiWithGroups } from "@sapphire/discord.js-utilities";
+import { FormattedCustomEmojiWithGroups } from "@sapphire/discord-utilities";
 const CustomEmojiGlobal = new RegExp(FormattedCustomEmojiWithGroups, "g");
 
 // This file controls what data is collected and how
