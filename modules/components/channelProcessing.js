@@ -198,7 +198,6 @@ const saveDataAndDeleteMessage = async function(message) {
  * @param {?string} after Optional after bound
  */
 export const save = async function(authorizer, channel, user, before, after) {
-
     log.debug(`${authorizer.tag} (${authorizer.id}) succesfully initiated saving, collecting ${before || after ? "some" : "all"} emojis ${user ? `from ${user.tag} (${user.id}) in` : `from`} #${channel.name} (${channel.id}) ${describeBounds(before, after)}`);
     if (hook) {
         await hook.send({
@@ -232,7 +231,6 @@ export const save = async function(authorizer, channel, user, before, after) {
  * @param {?string} after Optional after bound
  */
 export const clear = async function(authorizer, channel, user, saving, before, after) {
-
     log.debug(`${authorizer.tag} (${authorizer.id}) succesfully initiated clearing, deleting ${before || after ? "some" : "all"} messages from ${user.tag} (${user.id}) in #${channel.name} (${channel.id}) ${describeBounds(before, after)}`);
     if (hook) {
         await hook.send({
