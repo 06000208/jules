@@ -1,12 +1,16 @@
 import { env, exit } from "node:process";
 import { Discord } from "@a06000208/discord-framework";
-import { Intents } from "discord.js";
+import { Client, GatewayIntentBits } from "discord.js";
 import { log } from "./log.js";
 import { defaultPresence } from "./constants.js";
-import logging from "./listeners/logging.js";
+import { clientLogging, restLogging } from "./listeners/logging.js";
 import interactionCreate from "./listeners/interactionCreate.js";
+import { EventEmitterConstruct } from "@a06000208/handler";
 
-// instantiate Discord instance, this includes the discord.js Client
+/**
+ * instantiate Discord instance, this includes the discord.js Client
+ * @type {{client: Client, events: EventEmitterConstruct }}
+ */
 const discord = new Discord({
     /**
      * @type {import("discord.js").ClientOptions}
@@ -14,8 +18,9 @@ const discord = new Discord({
     clientOptions: {
         presence: defaultPresence,
         intents: [
-            Intents.FLAGS.GUILDS,
-            Intents.FLAGS.GUILD_MESSAGES,
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.MessageContent,
         ],
         allowedMentions: {
             parse: [],
@@ -26,8 +31,11 @@ const discord = new Discord({
     },
 });
 
+const restEvents = new EventEmitterConstruct(discord.client.rest);
+
 // listeners
-for (const listenerBlock of logging) { discord.events.load(listenerBlock); }
+for (const listenerBlock of clientLogging) { discord.events.load(listenerBlock); }
+for (const listenerBlock of restLogging) { restEvents.load(listenerBlock); }
 discord.events.load(interactionCreate);
 
 // bot owners

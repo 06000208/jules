@@ -1,6 +1,6 @@
 import { env } from "node:process";
 import { REST } from "@discordjs/rest";
-import { Routes } from "discord-api-types/v9";
+import { Routes } from "discord.js";
 import { log } from "../log.js";
 import { commands /* , guildCommands */ } from "../components/commandData.js";
 

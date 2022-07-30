@@ -1,20 +1,24 @@
 import { setTimeout as wait } from "node:timers/promises";
+import { BaseGuildTextChannel, User } from "discord.js";
 import { DiscordSnowflake } from "@sapphire/snowflake";
-import { BaseGuildTextChannel, ButtonInteraction, CommandInteraction, Message, MessageActionRow, MessageButton, Permissions, User } from "discord.js";
 import { DateTime, Interval } from "luxon";
-import { analytics, emojis } from "../databases.js";
-import { collectData, saveData } from "./dataCollection.js";
-import { log } from "../log.js";
-import { hook } from "../webhook.js";
 import humanizeDuration from "humanize-duration";
+
+import { log } from "../log.js";
+import { collectData } from "./dataCollection.js";
+import { analytics, emojis } from "../databases.js";
+import { hook } from "../webhook.js";
+import { discord } from "../discord.js";
 
 /**
  * @typedef {Object} Analytics
  * @property {?string} authorization person who authorized this action in the format "user.tag (user.id)"
  * @property {?string} filter if applicable, a string representing what was used as a filter
  * @property {?string} channel the targeted channel in the format "#channel.name (channel.id) in guild.name (guild.id)"
+ * @property {?string} before
+ * @property {?string} after
  * @property {number} loops Number of loops taken to process a channel
- * @property {number} processed Number of messages fetched from discord
+ * @property {number} fetched Number of messages fetched from discord
  * @property {number} valid Number of valid messages that passed the filter
  * @property {?DateTime} start A luxon DateTime, will be automatically serialized to a string by database.write()
  * @property {?DateTime} end A luxon DateTime, will be automatically serialized to a string by database.write()
@@ -29,13 +33,47 @@ const defaultAnalyticsData = {
     "authorization": null,
     "filter": null,
     "channel": null,
+    "before": null,
+    "after": null,
     "loops": 0,
-    "processed": 0,
+    "fetched": 0,
     "valid": 0,
     "start": null,
     "end": null,
     "duration": null,
 };
+
+/**
+ * @param {BaseGuildTextChannel} channel
+ * @param {string} id
+ */
+export const messageHyperlink = (channel, id) => `[${id}](<https://discord.com/channels/${channel.guildId}/${channel.id}/${id}>)`;
+
+/**
+ * Not using nested ternary statements for this nonsense
+ * @param {?string} before
+ * @param {?string} after
+ * @param {BaseGuildTextChannel} channel
+ */
+export const describeBounds = function(before, after, channel) {
+    if (channel) {
+        if (before && after) return `bound after ${messageHyperlink(channel, after)} and before ${messageHyperlink(channel, before)}`;
+        if (before) return `bound before ${messageHyperlink(channel, before)}`;
+        if (after) return `bound after ${messageHyperlink(channel, after)}`;
+    } else {
+        if (before && after) return `bound after ${after} and before ${before}`;
+        if (before) return `bound before ${before}`;
+        if (after) return `bound after ${after}`;
+    }
+    return "without bounds";
+};
+
+/**
+ * @typedef {Object} ProcessingState
+ * @property {?string} before
+ * @property {?string} after
+ * @property {boolean} iterating
+ */
 
 /**
  * @callback messageProcessing
@@ -48,154 +86,87 @@ const defaultAnalyticsData = {
  * @param {BaseGuildTextChannel} channel
  * @param {messageProcessing} callback Function called with valid messages
  * @param {?User} [user] Used to filter messages to a specific user
+ * @param {?string} before Discord id of the message *before* where you want processing to start
+ * @param {?string} after Discord id of the message *after* where you want processing to end
  * @returns {Promise<Analytics>}
  */
-const processAllChannelMessages = async function(authorizer, channel, callback, user) {
+const processAllChannelMessages = async function(authorizer, channel, callback, user, before, after) {
     const id = DiscordSnowflake.generate().toString();
-    log.debug(`[${id}] starting to iterate all messages in #${channel.name} (${channel.id})`);
+    log.debug(`[${id}] starting to iterate messages in #${channel.name} (${channel.id}) ${describeBounds(before, after)}`);
     await analytics.read();
     analytics.data[id] = { ...defaultAnalyticsData };
     analytics.data[id].authorization = `${authorizer.tag} (${authorizer.id})`;
     if (user) analytics.data[id].filter = `${user.tag} (${user.id})`;
     analytics.data[id].channel = `#${channel.name} (${channel.id}) in ${channel.guild.name} (${channel.guild.id})`;
+    if (before) analytics.data[id].before = before;
+    if (after) analytics.data[id].after = after;
     analytics.data[id].start = DateTime.now();
-    let before = null;
-    let iterating = true;
-    while (iterating) {
+    /**
+     * object used to hold the current processing state
+     * @type {ProcessingState}
+     */
+    const state = {
+        before: before || null,
+        after: after || null,
+        iterating: true,
+    };
+    while (state.iterating) {
         analytics.data[id].loops++;
-        // not scientific, simply avoids hitting discord with more than 1r/1s
-        // discord.js has its own internal rate limits and action queues based
-        // on the cooldowns it gets in the responses from discord, so it could
-        // be safe to lower it, but id prefer not
-        if (before) await wait(1000);
-        const messages = await channel.messages.fetch(before ? { "limit": 100, "before": before } : { "limit": 100 });
-        analytics.data[id].processed += messages.size;
-        const validMessages = user ? messages.filter((message) => message.author.id === user.id) : messages;
+        // the wait simply avoids hitting discord with more than 1r/1s
+        await wait(1000);
+        const options = { "limit": 100 };
+        // before and after are mutually exclusive, prefer using before
+        if (state.before) {
+            options.before = state.before;
+        } else if (state.after) {
+            options.after = state.after;
+        }
+        let messages;
+        try {
+            messages = await channel.messages.fetch(options);
+        } catch (error) {
+            log.error({ "error": error.name || null, "stack": error.stack || null }, `encountered an error attempting to fetch messages from ${channel}, stopping prematurely: ${error.message}`);
+            if (hook) {
+                await hook.send({
+                    content: `encountered an error (${error.message ? error.message.substring(0, 200) : "no message"}) attempting to fetch messages from ${channel} and must stop prematurely, see console and logs for more details`,
+                    username: discord.client.user.username,
+                    avatarURL: discord.client.user.avatarURL({ format: "png" }),
+                });
+            }
+            return null;
+        }
+        analytics.data[id].fetched += messages.size;
+        const validMessages = user ? messages.filter((message) => message.author.id === user.id) : messages.clone();
+        // account for when before and after are used simultaneously
+        if (options.before && state.after) {
+            const stopMessage = messages.get(state.after);
+            if (stopMessage) {
+                validMessages.sweep((message) => message.createdTimestamp <= stopMessage.createdTimestamp);
+                state.iterating = false;
+            }
+        }
         analytics.data[id].valid += validMessages.size;
         for (const message of validMessages.values()) {
             await callback(message, id);
         }
-        log.debug(`[${id}] [${analytics.data[id].loops} loops deep] ${validMessages.size} ${validMessages.size == 1 ? "message was" : "messages were"} ${user ? `valid (from ${user.tag})` : "valid"} out of ${messages.size}, for a total of ${analytics.data[id].valid} out of ${analytics.data[id].processed}`);
-        before = messages.lastKey();
-        iterating = messages.size === 100;
+        log.debug(`[${id}] [${analytics.data[id].loops} loops deep] ${validMessages.size} ${validMessages.size == 1 ? "message was" : "messages were"} ${user ? `valid (from ${user.tag})` : "valid"} out of ${messages.size}, for a total of ${analytics.data[id].valid} out of ${analytics.data[id].fetched}`);
+        if (state.before) {
+            state.before = messages.lastKey();
+        } else if (state.after) {
+            state.after = messages.firstKey();
+        }
+        if (state.iterating) state.iterating = messages.size === 100;
     }
     analytics.data[id].end = DateTime.now();
     const interval = Interval.fromDateTimes(analytics.data[id].start, analytics.data[id].end);
     analytics.data[id].duration = humanizeDuration(interval.length("milliseconds"));
-    log.debug(`[${id}] finished iterating #${channel.name} (${channel.id}), processed ${analytics.data[id].processed} ${analytics.data[id].processed == 1 ? "message" : "messages"} and attempted to handle ${analytics.data[id].valid} in ${analytics.data[id].duration}`);
+    log.debug(`[${id}] finished iterating #${channel.name} (${channel.id}) ${describeBounds(before, after)}, fetched ${analytics.data[id].fetched} ${analytics.data[id].fetched == 1 ? "message" : "messages"} and attempted to handle ${analytics.data[id].valid} in ${analytics.data[id].duration}`);
     await analytics.write();
     return analytics.data[id];
 };
 
 /**
- * Used to confirm an action via buttons before proceeding
- * @param {CommandInteraction} command
- * @param {string} action
- * @return {Promise<boolean>}
- */
-const confirmAction = async function(command, action) {
-    /**
-     * Message sent as an inital reply
-     * @type {Message}
-     */
-    const confirmationPrompt = await command.reply({
-        content: action,
-        components: [
-            new MessageActionRow().addComponents(
-                new MessageButton()
-                    .setCustomId("yes")
-                    .setLabel("Yes")
-                    .setStyle("DANGER"),
-                new MessageButton()
-                    .setCustomId("no")
-                    .setLabel("No")
-                    .setStyle("SECONDARY"),
-            ),
-        ],
-        ephemeral: true,
-        fetchReply: true,
-    });
-    /**
-     * Button interaction used for confirming or cancelling
-     * @type {?ButtonInteraction}
-     */
-    let button = null;
-    try {
-        button = await confirmationPrompt.awaitMessageComponent({
-            /**
-             * @param {ButtonInteraction} interaction
-             */
-            filter: (interaction) => interaction.user.id === command.user.id,
-            componentType: "BUTTON",
-            time: 60 * 1000,
-        });
-    } catch (error) {
-        log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} but didn't confirm usage within 1 minute`);
-    }
-    if (!button) {
-        await command.editReply({
-            content: `didn't confirm usage within 1 minute, cancelled`,
-            components: [],
-        });
-        return false;
-    }
-    // according to discord's developer documentation, it should be fine to
-    // defer buttons as an initial response and never follow up
-    button.deferUpdate();
-    const confirmation = button.customId === "yes";
-    if (!confirmation) {
-        await command.editReply({
-            content: `okay, cancelled`,
-            components: [],
-        });
-    }
-    return confirmation;
-};
-
-/**
- * Save command
- * @param {CommandInteraction} command
- * @param {BaseGuildTextChannel} chnanel Required channel parameter
- * @param {?User} user Optional user parameter
- * @private
- */
-const save = async function(command, channel, user) {
-    if (!saveData) {
-        return await command.reply({
-            content: "unable to proceed, saving emojis is disabled",
-            ephemeral: true,
-        });
-    }
-    // ask for confirmation
-    const confirmation = await confirmAction(command, `are you sure you wish to save emojis ${user ? `from ${user} (${user.tag}) in` : `from`} ${channel}?`);
-    if (!confirmation) return;
-    // reply to the user & send message via webhook
-    log.debug(`${command.user.tag} (${command.user.id}) succesfully used /save, saving emojis ${user ? `from ${user.tag} (${user.id}) in` : `from`} #${channel.name} (${channel.id})`);
-    await command.editReply({
-        content: `confirmed, saving emojis ${user ? `from ${user.tag} in` : `from`} ${channel}`,
-        components: [],
-    });
-    await hook.send({
-        content: `${command.user.tag} succesfully used /save, saving emojis ${user ? `from ${user.tag} in` : `from`} ${channel}`,
-        username: command.client.user.username,
-        avatarURL: command.client.user.avatarURL({ format: "png" }),
-    });
-    // start
-    await emojis.read();
-    const knownEmojis = Object.keys(emojis.data).length;
-    const results = await processAllChannelMessages(command.user, channel, collectData, user);
-    // finish
-    await emojis.write();
-    const newEmojis = Object.keys(emojis.data).length - knownEmojis;
-    return await hook.send({
-        content: `finished iterating ${channel} ${user ? `using ${user.tag} as a filter` : "with no filter"}, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"} and found ${newEmojis} new emojis in ${results.duration}`,
-        username: command.client.user.username,
-        avatarURL: command.client.user.avatarURL({ format: "png" }),
-    });
-};
-
-/**
- * Used as /clear's callback when saving isn't `true`
+ * Used as clear's callback when saving isn't `true`
  * @param {Message} message
  */
 const deleteMessage = async function(message) {
@@ -210,8 +181,7 @@ const deleteMessage = async function(message) {
 };
 
 /**
- * Used as /clear's callback when you provide the optional saving parameter set
- * to `true`
+ * Used as clear's callback when saving is enabled
  * @param {Message} message
  */
 const saveDataAndDeleteMessage = async function(message) {
@@ -220,97 +190,69 @@ const saveDataAndDeleteMessage = async function(message) {
 };
 
 /**
- * Clear command
- * @param {CommandInteraction} command
+ * Save function
+ * @param {User} authorizer
  * @param {BaseGuildTextChannel} chnanel Required channel parameter
- * @param {User} user Required user parameter
- * @private
+ * @param {?User} user Optional user parameter
+ * @param {?string} before Optional before bound
+ * @param {?string} after Optional after bound
  */
-const clear = async function(command, channel, user) {
-    /**
-     * Optional boolean parameter
-     * @type {null|boolean}
-     */
-    const saving = command.options.getBoolean("emojis");
-    if (saving && !saveData) {
-        return await command.reply({
-            content: "unable to proceed with saving enabled, saving emojis is disabled",
-            ephemeral: true,
+export const save = async function(authorizer, channel, user, before, after) {
+    log.debug(`${authorizer.tag} (${authorizer.id}) succesfully initiated saving, collecting ${before || after ? "some" : "all"} emojis ${user ? `from ${user.tag} (${user.id}) in` : `from`} #${channel.name} (${channel.id}) ${describeBounds(before, after)}`);
+    if (hook) {
+        await hook.send({
+            content: `${authorizer.tag} succesfully initiated saving, collecting ${before || after ? "some" : "all"} emojis ${user ? `from ${user.tag} in` : `from`} ${channel} ${describeBounds(before, after, channel)}`,
+            username: discord.client.user.username,
+            avatarURL: discord.client.user.avatarURL({ format: "png" }),
         });
     }
-    // ask for confirmation
-    const confirmation = await confirmAction(command, `are you sure you wish to delete all messages from ${user} (${user.tag}) in ${channel}?`);
-    if (!confirmation) return;
-    // reply to the user & send message via webhook
-    log.debug(`${command.user.tag} (${command.user.id}) succesfully used /clear, deleting all messages from ${user.tag} (${user.id}) in #${channel.name} (${channel.id})`);
-    await command.editReply({
-        content: `confirmed, deleting all messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in ${channel}`,
-        components: [],
-    });
-    await hook.send({
-        content: `${command.user.tag} succesfully used /clear, deleting all messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in ${channel}`,
-        username: command.client.user.username,
-        avatarURL: command.client.user.avatarURL({ format: "png" }),
-    });
-    // start
-    // don't need to check saveData again as when its false this code is never reached
-    if (saving) await emojis.read();
-    const knownEmojis = saving ? Object.keys(emojis.data).length : 0;
-    const callback = saving ? saveDataAndDeleteMessage : deleteMessage;
-    const results = await processAllChannelMessages(command.user, channel, callback, user);
-    // finish
-    if (saving) await emojis.write();
-    const newEmojis = saving ? Object.keys(emojis.data).length - knownEmojis : 0;
-    return await hook.send({
-        content: `finished iterating ${channel} using ${user.tag} as a filter, processed ${results.processed} ${results.processed == 1 ? "message" : "messages"}, ${saving ? `found ${newEmojis} new emojis` : "did not check for emojis"}, and attempted to delete ${results.valid} in ${results.duration}`,
-        username: command.client.user.username,
-        avatarURL: command.client.user.avatarURL({ format: "png" }),
-    });
+    await emojis.read();
+    const knownEmojis = Object.keys(emojis.data).length;
+    const results = await processAllChannelMessages(authorizer, channel, collectData, user, before, after);
+    if (!results) return;
+    await emojis.write();
+    const newEmojis = Object.keys(emojis.data).length - knownEmojis;
+    log.debug(`found ${newEmojis} new emojis in ${results.duration}`);
+    if (hook) {
+        await hook.send({
+            content: `finished iterating ${channel} ${describeBounds(before, after, channel)} ${user ? `using ${user.tag} as a filter` : "with no filter"}, found ${results.valid} valid ${results.valid == 1 ? "message" : "messages"} out of ${results.fetched} total, found ${newEmojis} new emojis in ${results.duration}`,
+            username: discord.client.user.username,
+            avatarURL: discord.client.user.avatarURL({ format: "png" }),
+        });
+    }
 };
 
 /**
- * Handles checks for both /save and /clear
- * @param {CommandInteraction} command
+ * Clear function
+ * @param {User} authorizer
+ * @param {BaseGuildTextChannel} chnanel Required channel parameter
+ * @param {User} user Required user parameter
+ * @param {?boolean} saving Optional saving parameter
+ * @param {?string} before Optional before bound
+ * @param {?string} after Optional after bound
  */
-export const channelCommand = async function(command) {
-    /**
-     * Required channel parameter
-     * @type {BaseGuildTextChannel}
-     */
-    const channel = command.options.getChannel("channel");
-    /**
-     * Optional user parameter
-     * @type {?User}
-     */
-    const user = command.options.getUser("user");
-    if (channel.type === "DM") {
-        log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} on dms`);
-        return await command.reply({
-            content: "this command may only be used on guild channels",
-            ephemeral: true,
+export const clear = async function(authorizer, channel, user, saving, before, after) {
+    log.debug(`${authorizer.tag} (${authorizer.id}) succesfully initiated clearing, deleting ${before || after ? "some" : "all"} messages from ${user.tag} (${user.id}) in #${channel.name} (${channel.id}) ${describeBounds(before, after)}`);
+    if (hook) {
+        await hook.send({
+            content: `${authorizer.tag} succesfully initiated clearing, deleting ${before || after ? "some" : "all"} messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in ${channel} ${describeBounds(before, after, channel)}`,
+            username: discord.client.user.username,
+            avatarURL: discord.client.user.avatarURL({ format: "png" }),
         });
     }
-    // while someone needs manage messages to run the command, they might not
-    // have it for the channel they select
-    if (!channel.permissionsFor(command.user.id, true).has(Permissions.FLAGS.MANAGE_MESSAGES)) {
-        log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} without Manage Messages in #${channel.name} (${channel.id})`);
-        return await command.reply({
-            content: `you don't have permission to do this in ${channel}`,
-            ephemeral: true,
+    // don't need to check saveData again as its checked by the command or job code
+    if (saving) await emojis.read();
+    const knownEmojis = saving ? Object.keys(emojis.data).length : 0;
+    const callback = saving ? saveDataAndDeleteMessage : deleteMessage;
+    const results = await processAllChannelMessages(authorizer, channel, callback, user, before, after);
+    if (saving) await emojis.write();
+    const newEmojis = saving ? Object.keys(emojis.data).length - knownEmojis : 0;
+    if (saving) log.debug(`found ${newEmojis} new emojis in ${results.duration}`);
+    if (hook) {
+        return await hook.send({
+            content: `finished iterating ${channel} ${describeBounds(before, after, channel)} using ${user.tag} as a filter, attempted to delete ${results.valid} ${results.valid == 1 ? "message" : "messages"} out of ${results.fetched} total and ${saving ? `found ${newEmojis} new emojis` : "did not check for emojis"} in ${results.duration}`,
+            username: discord.client.user.username,
+            avatarURL: discord.client.user.avatarURL({ format: "png" }),
         });
-    }
-    // bot also needs Manage Messages in the supplied channel
-    if (!channel.permissionsFor(command.client.user.id, true).has(Permissions.FLAGS.MANAGE_MESSAGES)) {
-        log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} but the bot is missing Manage Messages in #${channel.name} (${channel.id})`);
-        return await command.reply({
-            content: `${command.client.user} is missing Manage Messages in ${channel}, can't proceed`,
-            ephemeral: true,
-        });
-    }
-    switch (command.commandName) {
-        case "clear":
-            return await clear(command, channel, user);
-        case "save":
-            return await save(command, channel, user);
     }
 };

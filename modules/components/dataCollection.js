@@ -1,7 +1,8 @@
 import { Message } from "discord.js";
 import { env } from "node:process";
 import { emojis } from "../databases.js";
-import { FormattedCustomEmojiWithGroups } from "@sapphire/discord.js-utilities";
+import { FormattedCustomEmojiWithGroups } from "@sapphire/discord-utilities";
+import { log } from "../log.js";
 const CustomEmojiGlobal = new RegExp(FormattedCustomEmojiWithGroups, "g");
 
 // This file controls what data is collected and how
@@ -16,11 +17,13 @@ export const saveData = env?.jules_save_emojis === "true";
  * @param {Message} message
  */
 export const collectData = async function(message) {
-    if (saveData && message.content) {
+    if (message.content) {
         for (const match of message.content.matchAll(CustomEmojiGlobal)) {
             if (match.groups.id && !emojis.data[match.groups.id]) {
                 emojis.data[match.groups.id] = { ...match.groups };
             }
         }
+    } else {
+        log.trace(`falsy message content for id ${message.id} in #${message.channel.name} (${message.channelId}), unable to parse emojis for saving`);
     }
 };
