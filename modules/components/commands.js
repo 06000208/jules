@@ -60,7 +60,7 @@ export const guilds = async function(command) {
     let list = command.client.guilds.cache.map((guild) => `${guild.name} (${guild.id})`).join("\n") || "no guilds?";
     log.debug({ guilds: list }, `${command.user.tag} (${command.user.id}) used /guilds`);
     if (list.length > 1900) {
-        list = list.substring(0, list.indexOf("\n", 1600));
+        list = list.substring(0, list.lastIndexOf("\n", 1900));
         list += `\nlist had to be truncated, see console or log file for the full list`;
     }
     await command.reply({
@@ -79,7 +79,7 @@ export const estimate = async function(command) {
     const ephemeral = command.options.getBoolean("ephemeral");
     const start = DateTime.fromMillis(0);
     const timeToFetch = start.plus({ seconds: Math.round(totalMessages / 100) });
-    let msg = null;
+    let msg = `unknown /estimate type`;
     if (type === "save") {
         const savingInterval = Interval.fromDateTimes(start, timeToFetch);
         msg = `saving would take at least ${humanizeDuration(savingInterval.length("milliseconds"))}`;
