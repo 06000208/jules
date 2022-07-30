@@ -20,6 +20,7 @@ const discord = new Discord({
         intents: [
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.MessageContent,
         ],
         allowedMentions: {
             parse: [],
