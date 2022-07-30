@@ -57,13 +57,13 @@ export const messageHyperlink = (channel, id) => `[${id}](<https://discord.com/c
  */
 export const describeBounds = function(before, after, channel) {
     if (channel) {
-        if (before && after) return `bound to after ${messageHyperlink(channel, after)} and before ${messageHyperlink(channel, before)}`;
-        if (before) return `bound to before ${messageHyperlink(channel, before)}`;
-        if (after) return `bound to after ${messageHyperlink(channel, after)}`;
+        if (before && after) return `bound after ${messageHyperlink(channel, after)} and before ${messageHyperlink(channel, before)}`;
+        if (before) return `bound before ${messageHyperlink(channel, before)}`;
+        if (after) return `bound after ${messageHyperlink(channel, after)}`;
     } else {
-        if (before && after) return `bound to after ${after} and before ${before}`;
-        if (before) return `bound to before ${before}`;
-        if (after) return `bound to after ${after}`;
+        if (before && after) return `bound after ${after} and before ${before}`;
+        if (before) return `bound before ${before}`;
+        if (after) return `bound after ${after}`;
     }
     return "without bounds";
 };
@@ -212,9 +212,10 @@ export const save = async function(authorizer, channel, user, before, after) {
     if (!results) return;
     await emojis.write();
     const newEmojis = Object.keys(emojis.data).length - knownEmojis;
+    log.debug(`found ${newEmojis} new emojis in ${results.duration}`);
     if (hook) {
         await hook.send({
-            content: `finished iterating ${channel} ${describeBounds(before, after, channel)} ${user ? `using ${user.tag} as a filter` : "with no filter"}, fetched ${results.fetched} ${results.fetched == 1 ? "message" : "messages"} and found ${newEmojis} new emojis in ${results.duration}`,
+            content: `finished iterating ${channel} ${describeBounds(before, after, channel)} ${user ? `using ${user.tag} as a filter` : "with no filter"}, found ${results.valid} valid ${results.valid == 1 ? "message" : "messages"} out of ${results.fetched} total, found ${newEmojis} new emojis in ${results.duration}`,
             username: discord.client.user.username,
             avatarURL: discord.client.user.avatarURL({ format: "png" }),
         });
@@ -246,9 +247,10 @@ export const clear = async function(authorizer, channel, user, saving, before, a
     const results = await processAllChannelMessages(authorizer, channel, callback, user, before, after);
     if (saving) await emojis.write();
     const newEmojis = saving ? Object.keys(emojis.data).length - knownEmojis : 0;
+    if (saving) log.debug(`found ${newEmojis} new emojis in ${results.duration}`);
     if (hook) {
         return await hook.send({
-            content: `finished iterating ${channel} ${describeBounds(before, after, channel)} using ${user.tag} as a filter, fetched ${results.fetched} ${results.fetched == 1 ? "message" : "messages"}, ${saving ? `found ${newEmojis} new emojis` : "did not check for emojis"}, and attempted to delete ${results.valid} in ${results.duration}`,
+            content: `finished iterating ${channel} ${describeBounds(before, after, channel)} using ${user.tag} as a filter, attempted to delete ${results.valid} ${results.valid == 1 ? "message" : "messages"} out of ${results.fetched} total and ${saving ? `found ${newEmojis} new emojis` : "did not check for emojis"} in ${results.duration}`,
             username: discord.client.user.username,
             avatarURL: discord.client.user.avatarURL({ format: "png" }),
         });

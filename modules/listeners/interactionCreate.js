@@ -5,6 +5,7 @@ import { log } from "../log.js";
 import { BaseInteraction, InteractionType } from "discord.js";
 import { ping, about, quit, guilds, estimate } from "../components/commands.js";
 import { channelCommand } from "../components/channelCommands.js";
+import { jobsCommand } from "../components/channelJobs.js";
 
 export default new ListenerBlock({ event: "interactionCreate" }, /** @param {BaseInteraction} interaction */ async function(interaction) {
     if (interaction.type !== InteractionType.ApplicationCommand) return;
@@ -34,6 +35,8 @@ export default new ListenerBlock({ event: "interactionCreate" }, /** @param {Bas
         case "clear":
         case "save":
             return await channelCommand(interaction);
+        case "jobs":
+            return await jobsCommand(interaction);
         case "quit":
         case "exit":
             return await quit(interaction);

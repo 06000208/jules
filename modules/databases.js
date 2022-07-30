@@ -15,22 +15,6 @@ if (!analytics.data) {
 }
 
 /**
- * lowdb json database used for json defined jobs
- */
-const jobs = new Low(new JSONFile(join(directory, "data", "jobs.json")));
-await jobs.read();
-if (!jobs.data) {
-    jobs.data = {
-        todo: {},
-        done: {},
-    };
-    await jobs.write();
-} else {
-    if (!jobs.data.todo) jobs.data.todo = {};
-    if (!jobs.data.done) jobs.data.done = {};
-}
-
-/**
  * lowdb json database used for saving emoji data when enabled
  */
 const emojis = new Low(new JSONFile(join(directory, "data", "emojis.json")));
@@ -44,6 +28,5 @@ log.info("Started databases");
 
 export {
     analytics,
-    jobs,
     emojis,
 };

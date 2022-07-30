@@ -21,6 +21,23 @@ export const commands = [
             .addIntegerOption(option => option.setName("total").setDescription("total messages in a channel").setRequired(true))
             .addBooleanOption(option => option.setName("ephemeral").setDescription("default true").setRequired(false)),
         ),
+    new SlashCommandBuilder().setName("jobs")
+        .setDescription("manage json defined jobs")
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
+        .setDMPermission(false)
+        /*
+        .addSubcommand(subcommand => subcommand.setName("add").setDescription("adds a job")
+            .addChannelOption(option => option.setName("channel").setDescription("channel").setRequired(true))
+            .addStringOption(option => option.setName("name").setDescription("x").setRequired(false)),
+        )
+        .addSubcommand(subcommand => subcommand.setName("remove").setDescription("removes a job")
+            .addChannelOption(option => option.setName("channel").setDescription("channel").setRequired(true)),
+        )
+        */
+        .addSubcommand(subcommand => subcommand.setName("start").setDescription("starts running jobs"))
+        .addSubcommand(subcommand => subcommand.setName("list").setDescription("list jobs")
+            .addChannelOption(option => option.setName("channel").setDescription("jobs for a channel").setRequired(false)),
+        ),
     new SlashCommandBuilder().setName("save")
         .setDescription("saves emojis from a channel")
         .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)

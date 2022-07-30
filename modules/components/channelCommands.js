@@ -133,10 +133,10 @@ export const channelCommand = async function(command) {
     if (before && after) {
         const afterSnowflake = DiscordSnowflake.deconstruct(after);
         const beforeSnowflake = DiscordSnowflake.deconstruct(before);
-        if (afterSnowflake > beforeSnowflake) {
-            log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} but after can't be larger than before`);
+        if (afterSnowflake.timestamp > beforeSnowflake.timestamp) {
+            log.debug(`${command.user.tag} (${command.user.id}) tried to use /${command.commandName} but after can't be after before`);
             return await command.reply({
-                content: `after parameter \`${typeof after == "string" ? after.substring(0, 20) : after}\` can't be larger than before parameter \`${typeof before == "string" ? before.substring(0, 20) : before}\`, can't proceed`,
+                content: `after parameter \`${typeof after == "string" ? after.substring(0, 20) : after}\` can't be after before parameter \`${typeof before == "string" ? before.substring(0, 20) : before}\`, can't proceed`,
                 ephemeral: true,
             });
         }
