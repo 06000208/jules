@@ -23,6 +23,7 @@ export const collectData = async function(message) {
                 emojis.data[match.groups.id] = { ...match.groups };
             }
         }
+        await emojis.write();
     } else if (!message.embeds.length && !message.attachments.size) {
         log.trace(`unable to parse emojis from message id ${message.id}, falsy content with no attachments or embeds? occured in #${message.channel.name} (${message.channelId})`);
     }
