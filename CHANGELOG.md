@@ -1,6 +1,6 @@
 ## [1.2.2](https://github.com/06000208/jules/releases/tag/1.2.2)
 
-- increased cooldown between message deletes
+- increased cooldown between message deletes to 3 seconds
 - fixed incorrect property use in logging.js
 - ensure emojis are written to database to avoid data loss
 
