@@ -176,11 +176,11 @@ const processAllChannelMessages = async function(authorizer, channel, callback, 
 const deleteMessage = async function(message) {
     if (message.deletable) {
         await message.delete();
-        // not scientific, simply avoids hitting discord with more than 1r/1.5s
+        // not scientific, simply avoids hitting discord with more than 1r/3s
         // discord.js has its own internal rate limits and action queues based
         // on the cooldowns it gets in the responses from discord, so it could
         // be safe to lower it, but id prefer not
-        await wait(1500);
+        await wait(3000);
     }
 };
 

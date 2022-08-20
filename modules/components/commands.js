@@ -91,7 +91,7 @@ export const estimate = async function(command) {
                 ephemeral: true,
             });
         }
-        const timeToDelete = timeToFetch.plus({ seconds: validMessages });
+        const timeToDelete = timeToFetch.plus({ seconds: validMessages * 3 });
         const deletingInterval = Interval.fromDateTimes(start, timeToDelete);
         msg = `clearing would take at least ${humanizeDuration(deletingInterval.length("milliseconds"))}`;
     }
