@@ -18,12 +18,14 @@ export const saveData = env?.jules_save_emojis === "true";
  */
 export const collectData = async function(message) {
     if (message.content) {
+        let newEmojis = false;
         for (const match of message.content.matchAll(CustomEmojiGlobal)) {
             if (match.groups.id && !emojis.data[match.groups.id]) {
+                newEmojis = true;
                 emojis.data[match.groups.id] = { ...match.groups };
             }
         }
-        await emojis.write();
+        if (newEmojis) await emojis.write();
     } else if (!message.embeds.length && !message.attachments.size) {
         log.trace(`unable to parse emojis from message id ${message.id}, falsy content with no attachments or embeds? occured in #${message.channel.name} (${message.channelId})`);
     }
