@@ -1,3 +1,7 @@
+## [1.2.1](https://github.com/06000208/jules/releases/tag/1.2.1)
+
+- fixed a crucial bug that caused an infinite loop
+
 ## [1.2.0](https://github.com/06000208/jules/releases/tag/1.2.0)
 
 - made using the webhook optional

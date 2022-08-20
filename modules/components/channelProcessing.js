@@ -150,11 +150,15 @@ const processAllChannelMessages = async function(authorizer, channel, callback, 
             await callback(message, id);
         }
         log.debug(`[${id}] [${analytics.data[id].loops} loops deep] ${validMessages.size} ${validMessages.size == 1 ? "message was" : "messages were"} ${user ? `valid (from ${user.tag})` : "valid"} out of ${messages.size}, for a total of ${analytics.data[id].valid} out of ${analytics.data[id].fetched}`);
-        if (state.before) {
-            state.before = messages.lastKey();
-        } else if (state.after) {
+        // options.after will only be true if state.before is false, ie. we're
+        // iterating via after rather than before
+        if (options.after) {
             state.after = messages.firstKey();
+        } else {
+            // if iterating via before or without bounds, we use lastKey instead
+            state.before = messages.lastKey();
         }
+        // break from the loop if we were returned less than 100 messages
         if (state.iterating) state.iterating = messages.size === 100;
     }
     analytics.data[id].end = DateTime.now();
