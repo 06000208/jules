@@ -1,6 +1,7 @@
 ## [1.2.1](https://github.com/06000208/jules/releases/tag/1.2.1)
 
 - fixed a crucial bug that caused an infinite loop
+- made dataCollection aware that not all messages will have message content
 
 ## [1.2.0](https://github.com/06000208/jules/releases/tag/1.2.0)
 
