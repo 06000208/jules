@@ -17,6 +17,7 @@ for information on using json defined jobs, see the above link
 - if you don't have a bot account:
   - create an application in the [discord developer portal](https://discord.com/developers/applications)
   - navigate to your newly created application, select the "Bot" tab from the lefthand menu, and click "Add Bot" on the right
+  - navigate to the Privileged Gateway Intents section in the "Bot" tab, and enable the "message content" intent
 - setup your .env file or environment variables as described below
   - enable copying discord ids via context menu (right click) by opening discord's App Settings, the Advanced tab, and enabling Developer Mode
 - run `npm run deploy-commands` to deploy commands to discord
