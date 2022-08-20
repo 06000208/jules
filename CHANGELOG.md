@@ -1,6 +1,7 @@
 ## [1.2.2](https://github.com/06000208/jules/releases/tag/1.2.2)
 
 - increased cooldown between message deletes
+- fixed incorrect property use in logging.js
 
 ## [1.2.1](https://github.com/06000208/jules/releases/tag/1.2.1)
 

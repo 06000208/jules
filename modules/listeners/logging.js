@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { ListenerBlock } from "@a06000208/handler";
+import { discord } from "../discord.js";
 import { log } from "../log.js";
 
 export const clientLogging = [
@@ -25,8 +26,8 @@ export const clientLogging = [
 ];
 
 export const restLogging = [
-    // Keep in mind hitting a rate limit (rateLimit event) isn't the same thing as being rate limited (err 429)
+    // Keep in mind hitting a rate limit (rateLimited event) isn't the same thing as being rate limited (err 429)
     new ListenerBlock({ event: "rateLimited" }, function(rateLimited) {
-        log.trace({ "rateLimited": rateLimited }, `${this.user.tag} hit a rate limit, discord.js is delaying calls internally to respect it`);
+        log.trace({ "rateLimited": rateLimited }, `${discord.client.user.tag} hit a rate limit, discord.js is delaying calls internally to respect it`);
     }),
 ];
