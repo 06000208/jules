@@ -36,13 +36,13 @@ for (const listenerBlock of restLogging) { discord.restEvents.load(listenerBlock
 discord.clientEvents.load(interactionCreate);
 
 // bot owners
-if (!env.discord_owner_ids) throw new Error("no discord user ids to treat as bot owners");
-export const owners = env.discord_owner_ids.split(",").map((str) => str.trim());
+if (!env.DISCORD_OWNER_IDS) throw new Error("no discord user ids to treat as bot owners");
+export const owners = env.DISCORD_OWNER_IDS.split(",").map((str) => str.trim());
 log.info(`Authorized discord users: ${owners.join(", ")}`);
 
 // login
 try {
-    await discord.login(env.discord_token);
+    await discord.login(env.DISCORD_TOKEN);
 } catch (error) {
     switch (error.message) {
         case "TOKEN_MISSING":

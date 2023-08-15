@@ -21,6 +21,6 @@ const validateWebhookUrl = function(url) {
  * string, or fails to pass the regular expression, this will be null
  * @type {?WebhookClient}
  */
-export const hook = validateWebhookUrl(env.discord_webhook_url) ? new WebhookClient({ url: env.discord_webhook_url }) : null;
+export const hook = validateWebhookUrl(env.DISCORD_WEBHOOK_URL) ? new WebhookClient({ url: env.DISCORD_WEBHOOK_URL }) : null;
 
 log.info(hook ? "Instantiated webhook client" : "Webhook is disabled");

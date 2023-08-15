@@ -3,19 +3,19 @@ import { REST, Routes } from "discord.js";
 import { log } from "../log.js";
 import { commands /* , guildCommands */ } from "../components/commandData.js";
 
-const rest = new REST({ version: "9" }).setToken(env.discord_token);
+const rest = new REST({ version: "9" }).setToken(env.DISCORD_TOKEN);
 
-if (!env.discord_client_id) throw new Error("Cannot deploy commands without bot id");
+if (!env.DISCORD_CLIENT_ID) throw new Error("Cannot deploy commands without bot id");
 
 try {
     log.info("Deploying commands...");
-    await rest.put(Routes.applicationCommands(env.discord_client_id), { body: commands });
+    await rest.put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), { body: commands });
     log.info("Successfully deployed application commands");
     /*
-    if (env.discord_guild_ids) {
-        const guilds = env.discord_guild_ids.split(",").map((str) => str.trim());
+    if (env.DISCORD_GUILD_IDS) {
+        const guilds = env.DISCORD_GUILD_IDS.split(",").map((str) => str.trim());
         for (const id of guilds) {
-            await rest.put(Routes.applicationGuildCommands(env.discord_client_id, id), { body: guildCommands });
+            await rest.put(Routes.applicationGuildCommands(env.DISCORD_CLIENT_ID, id), { body: guildCommands });
         }
         log.info("Successfully deployed guild-specific application commands");
     }

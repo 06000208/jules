@@ -14,5 +14,5 @@ log.info({
     "discordVersion": discordVersion,
     "version": packageVersion,
     "platform": process.platform,
-    "dev": process.env.dev?.toLowerCase() === "true",
+    "dev": process.env.DEV?.toLowerCase() === "true",
 }, `Starting ${name}`);
