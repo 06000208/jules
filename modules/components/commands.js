@@ -1,5 +1,5 @@
 import { name, packageData, version } from "../constants.js";
-import { CommandInteraction, EmbedBuilder } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { discord, owners } from "../discord.js";
 import { log } from "../log.js";
 import { DateTime } from "luxon";
@@ -8,7 +8,7 @@ import humanizeDuration from "humanize-duration";
 
 /**
  * ping command
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  */
 export const ping = async function(command) {
     const reply = await command.reply({
@@ -20,7 +20,7 @@ export const ping = async function(command) {
 
 /**
  * about command
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  */
 export const about = async function(command) {
     const embed = new EmbedBuilder();
@@ -39,7 +39,7 @@ export const about = async function(command) {
 
 /**
  * quit command
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  */
 export const quit = async function(command) {
     // exit command
@@ -48,13 +48,13 @@ export const quit = async function(command) {
         content: "quitting...",
         ephemeral: true,
     });
-    discord.destroy();
+    discord.client.destroy();
     process.exit(0);
 };
 
 /**
  * exit command
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  */
 export const guilds = async function(command) {
     let list = command.client.guilds.cache.map((guild) => `${guild.name} (${guild.id})`).join("\n") || "no guilds?";
@@ -71,7 +71,7 @@ export const guilds = async function(command) {
 
 /**
  * estimate
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  */
 export const estimate = async function(command) {
     const type = command.options.getSubcommand();

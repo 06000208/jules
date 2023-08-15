@@ -102,7 +102,7 @@ const validateJob = function(job, index) {
 };
 
 /**
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  */
 export const jobsCommand = async function(command) {
     const type = command.options.getSubcommand();

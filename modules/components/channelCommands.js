@@ -1,6 +1,6 @@
 import { SnowflakeRegex } from "@sapphire/discord-utilities";
 import { DiscordSnowflake } from "@sapphire/snowflake";
-import { BaseGuildTextChannel, ChannelType, CommandInteraction, PermissionsBitField, User } from "discord.js";
+import { BaseGuildTextChannel, ChannelType, ChatInputCommandInteraction, PermissionsBitField, User } from "discord.js";
 import { log } from "../log.js";
 import { clear, describeBounds, save } from "./channelProcessing.js";
 import { confirmAction } from "./confirmAction.js";
@@ -8,7 +8,7 @@ import { saveData } from "./dataCollection.js";
 
 /**
  * Save command
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  * @param {BaseGuildTextChannel} chnanel Required channel parameter
  * @param {?User} user Optional user parameter
  * @param {?string} before Discord id of the message *before* where you want processing to start
@@ -34,7 +34,7 @@ const saveCommand = async function(command, channel, user, before, after) {
 
 /**
  * Clear command
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  * @param {BaseGuildTextChannel} chnanel Required channel parameter
  * @param {User} user Required user parameter
  * @param {?string} before Discord id of the message *before* where you want processing to start
@@ -65,7 +65,7 @@ const clearCommand = async function(command, channel, user, before, after) {
 
 /**
  * Handles checks for both /save and /clear
- * @param {CommandInteraction} command
+ * @param {ChatInputCommandInteraction} command
  */
 export const channelCommand = async function(command) {
     /**

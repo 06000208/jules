@@ -1,9 +1,9 @@
-import { ButtonInteraction, CommandInteraction, Message, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from "discord.js";
+import { ButtonInteraction, ChatInputCommandInteraction, Message, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from "discord.js";
 import { log } from "../log.js";
 
 /**
 * Used to confirm an action via buttons before proceeding
-* @param {CommandInteraction} command
+* @param {ChatInputCommandInteraction} command
 * @param {string} action
 * @return {Promise<boolean>}
 */

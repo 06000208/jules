@@ -1,6 +1,6 @@
 import { env, exit } from "node:process";
-import { Discord } from "@a06000208/discord-framework";
-import { Client, GatewayIntentBits } from "discord.js";
+import { DiscordBot } from "@a06000208/discord-framework";
+import { GatewayIntentBits } from "discord.js";
 import { log } from "./log.js";
 import { defaultPresence } from "./constants.js";
 import { clientLogging, restLogging } from "./listeners/logging.js";
@@ -9,9 +9,8 @@ import { EventEmitterConstruct } from "@a06000208/handler";
 
 /**
  * instantiate Discord instance, this includes the discord.js Client
- * @type {{client: Client, events: EventEmitterConstruct }}
  */
-const discord = new Discord({
+const discord = new DiscordBot({
     /**
      * @type {import("discord.js").ClientOptions}
      */
@@ -31,12 +30,10 @@ const discord = new Discord({
     },
 });
 
-const restEvents = new EventEmitterConstruct(discord.client.rest);
-
 // listeners
-for (const listenerBlock of clientLogging) { discord.events.load(listenerBlock); }
-for (const listenerBlock of restLogging) { restEvents.load(listenerBlock); }
-discord.events.load(interactionCreate);
+for (const listenerBlock of clientLogging) { discord.clientEvents.load(listenerBlock); }
+for (const listenerBlock of restLogging) { discord.restEvents.load(listenerBlock); }
+discord.clientEvents.load(interactionCreate);
 
 // bot owners
 if (!env.discord_owner_ids) throw new Error("no discord user ids to treat as bot owners");

@@ -1,12 +1,11 @@
 import { env } from "node:process";
-import { REST } from "@discordjs/rest";
-import { Routes } from "discord.js";
+import { REST, Routes } from "discord.js";
 import { log } from "../log.js";
 import { commands /* , guildCommands */ } from "../components/commandData.js";
 
 const rest = new REST({ version: "9" }).setToken(env.discord_token);
 
-if (!env.discord_client_id) throw new Error("cannot deploy commands without bot id");
+if (!env.discord_client_id) throw new Error("Cannot deploy commands without bot id");
 
 try {
     log.info("Deploying commands...");
