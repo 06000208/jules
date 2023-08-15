@@ -14,19 +14,33 @@ const CustomEmojiGlobal = new RegExp(FormattedCustomEmojiWithGroups, "g");
 export const saveData = env?.jules_save_emojis === "true";
 
 /**
+ * Convenience function
+ */
+const parseEmojiData = (data) => ({ animated: Boolean(data.animated), name: data.name, id: data.id });
+
+/**
  * @param {Message} message
  */
 export const collectData = async function(message) {
+    let newEmojis = false;
     if (message.content) {
-        let newEmojis = false;
         for (const match of message.content.matchAll(CustomEmojiGlobal)) {
             if (match.groups.id && !emojis.data[match.groups.id]) {
                 newEmojis = true;
-                emojis.data[match.groups.id] = { ...match.groups };
+                emojis.data[match.groups.id] = parseEmojiData(match.groups);
+
             }
         }
-        if (newEmojis) await emojis.write();
     } else if (!message.embeds.length && !message.attachments.size) {
         log.trace(`unable to parse emojis from message id ${message.id}, falsy content with no attachments or embeds? occured in #${message.channel.name} (${message.channelId})`);
     }
+    if (message.reactions.cache.size) {
+        for (const reaction of message.reactions.cache.values()) {
+            if (reaction.emoji.id && !emojis.data[reaction.emoji.id]) {
+                newEmojis = true;
+                emojis.data[reaction.emoji.id] = parseEmojiData(reaction.emoji);
+            }
+        }
+    }
+    if (newEmojis) await emojis.write();
 };
