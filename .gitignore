@@ -37,4 +37,8 @@ Thumbs.db
 *.env
 *.log
 *.sqlite
+*.7z
+*.zip
+*.tar
+*.gz
 data/*.json
