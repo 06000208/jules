@@ -11,7 +11,7 @@ const CustomEmojiGlobal = new RegExp(FormattedCustomEmojiWithGroups, "g");
  * Whether to collect emojis when using either /save or /clear with optional saving enabled
  * @type {boolean}
  */
-export const saveData = env?.jules_save_emojis === "true";
+export const saveData = env?.JULES_SAVE_EMOJIS === "true";
 
 /**
  * Convenience function
