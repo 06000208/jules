@@ -7,7 +7,7 @@ import humanizeDuration from "humanize-duration";
 import { log } from "../log.js";
 import { collectData } from "./dataCollection.js";
 import { analytics, emojis } from "../databases.js";
-import { hook } from "../webhook.js";
+import { hook, threadIndifferentWebhookSend } from "../webhook.js";
 import { discord } from "../discord.js";
 
 /**
@@ -127,7 +127,7 @@ const processAllChannelMessages = async function(authorizer, channel, callback, 
         } catch (error) {
             log.error({ "error": error.name || null, "stack": error.stack || null }, `encountered an error attempting to fetch messages from ${channel}, stopping prematurely: ${error.message}`);
             if (hook) {
-                await hook.send({
+                await threadIndifferentWebhookSend({
                     content: `encountered an error (${error.message ? error.message.substring(0, 200) : "no message"}) attempting to fetch messages from ${channel} and must stop prematurely, see console and logs for more details`,
                     username: discord.client.user.username,
                     avatarURL: discord.client.user.avatarURL({ format: "png" }),
@@ -205,7 +205,7 @@ const saveDataAndDeleteMessage = async function(message) {
 export const save = async function(authorizer, channel, user, before, after) {
     log.debug(`${authorizer.tag} (${authorizer.id}) succesfully initiated saving, collecting ${before || after ? "some" : "all"} emojis ${user ? `from ${user.tag} (${user.id}) in` : `from`} #${channel.name} (${channel.id}) ${describeBounds(before, after)}`);
     if (hook) {
-        await hook.send({
+        await threadIndifferentWebhookSend({
             content: `${authorizer.tag} succesfully initiated saving, collecting ${before || after ? "some" : "all"} emojis ${user ? `from ${user.tag} in` : `from`} ${channel} ${describeBounds(before, after, channel)}`,
             username: discord.client.user.username,
             avatarURL: discord.client.user.avatarURL({ format: "png" }),
@@ -219,7 +219,7 @@ export const save = async function(authorizer, channel, user, before, after) {
     const newEmojis = Object.keys(emojis.data).length - knownEmojis;
     log.debug(`found ${newEmojis} new emojis in ${results.duration}`);
     if (hook) {
-        await hook.send({
+        await threadIndifferentWebhookSend({
             content: `finished iterating ${channel} ${describeBounds(before, after, channel)} ${user ? `using ${user.tag} as a filter` : "with no filter"}, found ${results.valid} valid ${results.valid == 1 ? "message" : "messages"} out of ${results.fetched} total, found ${newEmojis} new emojis in ${results.duration}`,
             username: discord.client.user.username,
             avatarURL: discord.client.user.avatarURL({ format: "png" }),
@@ -239,7 +239,7 @@ export const save = async function(authorizer, channel, user, before, after) {
 export const clear = async function(authorizer, channel, user, saving, before, after) {
     log.debug(`${authorizer.tag} (${authorizer.id}) succesfully initiated clearing, deleting ${before || after ? "some" : "all"} messages from ${user.tag} (${user.id}) in #${channel.name} (${channel.id}) ${describeBounds(before, after)}`);
     if (hook) {
-        await hook.send({
+        await threadIndifferentWebhookSend({
             content: `${authorizer.tag} succesfully initiated clearing, deleting ${before || after ? "some" : "all"} messages ${saving ? "and saving emojis" : "without saving emojis"} from ${user.tag} in ${channel} ${describeBounds(before, after, channel)}`,
             username: discord.client.user.username,
             avatarURL: discord.client.user.avatarURL({ format: "png" }),
@@ -254,7 +254,7 @@ export const clear = async function(authorizer, channel, user, saving, before, a
     const newEmojis = saving ? Object.keys(emojis.data).length - knownEmojis : 0;
     if (saving) log.debug(`found ${newEmojis} new emojis in ${results.duration}`);
     if (hook) {
-        return await hook.send({
+        return await threadIndifferentWebhookSend({
             content: `finished iterating ${channel} ${describeBounds(before, after, channel)} using ${user.tag} as a filter, attempted to delete ${results.valid} ${results.valid == 1 ? "message" : "messages"} out of ${results.fetched} total and ${saving ? `found ${newEmojis} new emojis` : "did not check for emojis"} in ${results.duration}`,
             username: discord.client.user.username,
             avatarURL: discord.client.user.avatarURL({ format: "png" }),

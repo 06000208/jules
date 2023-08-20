@@ -42,6 +42,7 @@ additionally, there are some optional variables, which are needed for some funct
 ```bash
 # a webhook url to log when channel processing jobs (via json, /save, /clear) start and finish
 # this is because bots have a time limit to respond to interactions
+# supports webhook urls with a ?thread_id= parameter if you want to sequester jule's output to a thread
 DISCORD_WEBHOOK_URL=""
 
 # booleans that control what data is saved when using /save, or /clear with optional saving enabled

@@ -9,7 +9,7 @@ import { clear, describeBounds, save } from "./channelProcessing.js";
 import { confirmAction } from "./confirmAction.js";
 import { directory } from "../constants.js";
 import { DiscordSnowflake } from "@sapphire/snowflake";
-import { hook } from "../webhook.js";
+import { hook, threadIndifferentWebhookSend } from "../webhook.js";
 import { saveData } from "./dataCollection.js";
 
 // not happy with most of this code but wanted to get it done
@@ -197,7 +197,7 @@ export const jobsCommand = async function(command) {
             } else if (job.save) {
                 await save(command.user, channel, member.user, job.before, job.after);
             } else if (hook) {
-                await hook.send({
+                await threadIndifferentWebhookSend({
                     content: `skipping job ${index}, inoperable, though that shouldn't be possible`,
                     username: discord.client.user.username,
                     avatarURL: discord.client.user.avatarURL({ format: "png" }),
